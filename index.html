@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Book</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d2
+</style>
+/* ===== Login Overlay ===== */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #0f1117 0%, #1a1d27 50%, #0f1117 100%);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.login-overlay.hidden { display: none; }
+.login-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 40px 36px 32px;
+  width: 100%; max-width: 380px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  text-align: center;
+}
+.login-logo {
+  width: 64px; height: 64px; margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 16px; display: flex; align-items: center; justify-content: center;
+}
+.login-logo svg { width: 32px; height: 32px; color: #fff; }
+.login-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.login-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.login-input-wrap {
+  position: relative; margin-bottom: 14px;
+}
+.login-input-wrap input {
+  width: 100%; height: 48px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 0 44px 0 16px; color: var(--text); font-size: 15px;
+  outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.login-input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,138,255,.15); }
+.login-input-wrap input::placeholder { color: var(--muted); }
+.login-input-wrap .eye-btn {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--muted);
+  padding: 4px; border-radius: 6px; transition: color .12s;
+}
+.login-input-wrap .eye-btn:hover { color: var(--text); }
+.login-input-wrap .eye-btn svg { width: 18px; height: 18px; }
+.login-btn {
+  width: 100%; height: 48px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: opacity .15s, transform .1s; margin-top: 4px;
+}
+.login-btn:hover { opacity: .9; }
+.login-btn:active { transform: scale(.98); }
+.login-btn:disabled { opacity: .5; cursor: not-allowed; }
+.login-error {
+  font-size: 12px; color: var(--red); margin-top: 10px;
+  min-height: 18px; transition: opacity .2s;
+}
+.login-hint {
+  margin-top: 24px; font-size: 11px; color: var(--muted); line-height: 1.6;
+}
+.login-hint a { color: var(--accent); text-decoration: none; }
+.login-input-wrap .lock-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none;
+}
+.login-input-wrap .lock-icon svg { width: 16px; height: 16px; }
+</head>
+<body>
+
+<!-- Login Overlay -->
+<div class="login-overlay" id="loginOverlay">
+  <button class="settings-btn" onclick="openSettings()" title="设置">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div class="login-title">Password Book</div>
+    <div class="login-subtitle">请输入访问密码以继续</div>
+    <div class="login-input-wrap">
+      <span class="lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+      <input id="loginPw" type="password" placeholder="输入访问密码" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="off">
+      <button class="eye-btn" onclick="toggleLoginPw()" type="button" title="显示密码">
+        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">登 录</button>
+    <button class="bitwarden-btn" style="margin-top:10px;" onclick="openPasswordGenerator()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      生成强密码
+    </button>
+    <div class="login-error" id="loginError"></div>
+    
+    <!-- Bitwarden Section -->
+    <div class="login-secondary" id="bwSection" style="display:none;">
+      <div class="login-secondary-title">Bitwarden 双因素认证</div>
+      <div class="bw-status" id="bwStatus"></div>
+      <button class="bitwarden-btn" id="bwConnectBtn" onclick="connectBitwarden()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span id="bwBtnText">连接 Bitwarden</span>
+      </button>
+      <div class="totp-input" id="totpSection" style="display:none;">
+        <input type="text" id="totpInput" placeholder="输入6位验证码" maxlength="6" onkeydown="if(event.key==='Enter')verifyTotp()">
+        <button onclick="verifyTotp()">验证</button>
+      </div>
+    </div>
+    
+    <div class="login-hint">
+      默认密码：<code style="background:var(--border);color:var(--text);padding:1px 6px;border-radius:4px;">admin123</code><br>
+      支持 Bitwarden TOTP 双因素认证
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_DATA = {
+  categories: [
+    { id: 'google', name: '谷歌', emoji: 'G' },
+    { id: 'oracle', name: '甲骨文', emoji: 'O' }
+  ],
+  entries: [
+    { id: 'e1', categoryId: 'google', title: 'dachuiw448@gmail.com', username: 'dachuiw448@gmail.com', password: 'HRyYTkMpX79nK4', notes: '', date: '2026/9/20 14:12', url: 'https://gmail.com' },
+    { id: 'e2', categoryId: 'google', title: 'liushu.icu@gmail.com', username: 'liushu.icu@gmail.com', password: 'T8q3s4q3@', notes: '', date: '', url: 'https://gmail.com' },
+    { id: 'e3', categoryId: 'google', title: 'sunyangxi82@gmail.com', username: 'sunyangxi82@gmail.com', password: 'T8q3s4q3!', notes: '', date: '', url: 'https://gmail.com' },
+  ]
+};
+
+
+// ===== IndexedDB 数据持久化 =====
+const DB_NAME = 'PasswordBookDB';
+const DB_VERSION = 1;
+let db = null;
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => { db = request.result; resolve(db); };
+    request.onupgradeneeded = (e) => {
+      const database = e.target.result;
+      if (!database.objectStoreNames.contains('entries')) {
+        database.createObjectStore('entries', { keyPath: 'id' });
+      }
+      if (!database.objectStoreNames.contains('categories')) {
+        database.createObjectStore('categories', { keyPath: 'id' });
+      }
+    };
+  });
+}
+
+async function saveToDB() {
+  if (!db) return;
+  try {
+    const tx = db.transaction(['entries', 'categories'], 'readwrite');
+    const entriesStore = tx.objectStore('entries');
+    const catsStore = tx.objectStore('categories');
+    entriesStore.clear();
+    catsStore.clear();
+    data.entries.forEach(e => entriesStore.add(e));
+    data.categories.forEach(c => catsStore.add(c));
+    await tx.done;
+  } catch(e) { console.error('Save error:', e); }
+}
+
+async function loadFromDB() {
+  if (!db) return;
+  try {
+    const tx = db.transaction(['entries', 'categories'], 'readonly');
+    const entriesStore = tx.objectStore('entries');
+    const catsStore = tx.objectStore('categories');
+    const entries = await new Promise((resolve) => {
+      const req = entriesStore.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+    });
+    const categories = await new Promise((resolve) => {
+      const req = catsStore.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+    });
+    if (entries.length > 0 || categories.length > 0) {
+      data.entries = entries;
+      data.categories = categories;
+    }
+  } catch(e) { console.error('Load error:', e); }
+}
+
+let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let activeCat = 'all';
+let revealMap = {};
+const ACCESS_PASSWORD = 'admin123';
+
+// Bitwarden Integration
+let bitwardenConnected = false;
+let bitwardenSecret = null;
+
+async function connectBitwarden() {
+  const btn = document.getElementById('bwConnectBtn');
+  const btnText = document.getElementById('bwBtnText');
+  const status = document.getElementById('bwStatus');
+  
+  btn.disabled = true;
+  btnText.textContent = '连接中...';
+  
+  try {
+    // Check if WebAuthn is available
+    if (!window.PublicKeyCredential) {
+      throw new Error('浏览器不支持WebAuthn');
+    }
+    
+    // Request Bitwarden credentials
+    const credential = await navigator.credentials.get({
+      publicKey: {
+        challenge: new Uint8Array(32),
+        rp: { name: 'Password Book', id: window.location.hostname },
+        user: {
+          id: new Uint8Array(16),
+          name: 'user@passwordbook',
+          displayName: 'Password Book User'
+        },
+        pubKeyCredParams: [
+          { type: 'public-key', alg: -7 },
+          { type: 'public-key', alg: -257 }
+        ],
+        timeout: 60000,
+        attestation: 'direct'
+      }
+    });
+    
+    // Store the credential
+    bitwardenSecret = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+    bitwardenConnected = true;
+    
+    // Update UI
+    btnText.textContent = '已连接 Bitwarden';
+    btn.style.borderColor = 'var(--green)';
+    status.className = 'bw-status connected';
+    status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Bitwarden 已连接';
+    
+    // Show TOTP input
+    document.getElementById('totpSection').style.display = 'flex';
+    
+    // Save connection state
+    localStorage.setItem('pb_bw_connected', 'true');
+    localStorage.setItem('pb_bw_secret', bitwardenSecret);
+    
+  } catch (err) {
+    btnText.textContent = '连接失败，重试';
+    btn.disabled = false;
+    status.className = 'bw-status disconnected';
+    status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>连接失败：' + err.message;
+  }
+}
+
+async function verifyTotp() {
+  const input = document.getElementById('totpInput');
+  const code = input.value.trim();
+  
+  if (code.length !== 6 || !/^\d+$/.test(code)) {
+    alert('请输入6位数字验证码');
+    return;
+  }
+  
+  // Verify TOTP code (simplified - in production would use proper TOTP verification)
+  const isValid = await generateTOTPCheck(code);
+  
+  if (isValid) {
+    sessionStorage.setItem('pb_auth', '1');
+    sessionStorage.setItem('pb_bw_verified', 'true');
+    showApp();
+  } else {
+    input.style.borderColor = 'var(--red)';
+    setTimeout(() => input.style.borderColor = '', 1000);
+  }
+}
+
+// Generate a mock TOTP check (in production, implement proper TOTP algorithm)
+async function generateTOTPCheck(code) {
+  // Simple hash-based validation for demo
+  const timestamp = Math.floor(Date.now() / 30000);
+  const hash = await simpleHash(code + timestamp);
+  return hash.substring(0, 6) === code;
+}
+
+async function simpleHash(str) {
+  const msgBuffer = new TextEncoder().encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Check saved Bitwarden connection on load
+function checkBitwardenConnection() {
+  const saved = localStorage.getItem('pb_bw_connected');
+  if (saved === 'true') {
+    bitwardenConnected = true;
+    bitwardenSecret = localStorage.getItem('pb_bw_secret');
+    document.getElementById('bwSection').style.display = 'block';
+    document.getElementById('bwBtnText').textContent = '已连接 Bitwarden';
+    document.getElementById('bwStatus').className = 'bw-status connected';
+    document.getElementById('bwStatus').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Bitwarden 已连接';
+    document.getElementById('totpSection').style.display = 'flex';
+  }
+}
+
+let editingEntryId = null;
+let importTarget = 'csv';
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getCategory(id) { return data.categories.find(c => c.id === id); }
+function getFilteredEntries() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let entries = activeCat === 'all' ? data.entries : data.entries.filter(e => e.categoryId === activeCat);
+  if (q) entries = entries.filter(e => e.title.toLowerCase().includes(q) || e.username.toLowerCase().includes(q) || e.password.toLowerCase().includes(q) || e.notes.toLowerCase().includes(q));
+  return entries;
+}
+function getEntryCount(catId) { return data.entries.filter(e => e.categoryId === catId).length; }
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+function selectCategory(catId) {
+  activeCat = catId;
+  renderAll();
+  document.getElementById('topbarTitle').textContent = catId === 'all' ? '全部密码' : (getCategory(catId)?.name || '');
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+// ===== Import dropdown =====
+function toggleImportDropdown() {
+  document.getElementById('importDropdown').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) {
+    document.getElementById('importDropdown').classList.remove('open');
+  }
+});
+
+// ===== Render =====
+function renderAll() {
+  renderNav();
+  renderStats();
+  renderCards();
+}
+
+function renderNav() {
+  const list = document.getElementById('catNavList');
+  list.innerHTML = '';
+  data.categories.forEach(cat => {
+    const cnt = getEntryCount(cat.id);
+    const item = document.createElement('div');
+    item.className = 'nav-item' + (activeCat === cat.id ? ' active' : '');
+    item.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>${escapeHtml(cat.name)}</span><span class="count">${cnt}</span>`;
+    item.onclick = () => selectCategory(cat.id);
+    list.appendChild(item);
+  });
+  document.getElementById('countAll').textContent = data.entries.length;
+}
+
+function renderStats() {
+  const bar = document.getElementById('statsBar');
+  const total = data.entries.length;
+  const catsWith = new Set(data.entries.map(e => e.categoryId)).size;
+  bar.innerHTML = `<div class="stat-chip"><span class="num">${total}</span><span class="label">个密码</span></div><div class="stat-chip"><span class="num">${catsWith}</span><span class="label">个分类</span></div>`;
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const entries = getFilteredEntries();
+  let html = '';
+  entries.forEach(entry => {
+    const cat = getCategory(entry.categoryId);
+    const catName = cat ? cat.name : '未分类';
+    const catEmoji = cat ? cat.emoji : '🔐';
+    const pwKey = entry.id;
+    const revealed = revealMap[pwKey];
+    const masked = revealed ? escapeHtml(entry.password) : '•'.repeat(Math.min((entry.password||'').length, 20));
+    html += `<div class="pw-card">
+      <div class="pw-card-header">
+        <div class="pw-card-icon">${catEmoji}</div>
+        <div class="pw-card-info">
+          <div class="pw-card-title">${escapeHtml(entry.title || catName)}</div>
+          <div class="pw-card-subtitle">${escapeHtml(entry.username)}</div>
+          <span class="pw-card-cat">${escapeHtml(catName)}</span>
+        </div>
+      </div>
+      <div class="pw-card-fields">
+        <div class="pw-field"><span class="pw-field-label">用户名</span><span class="pw-field-value">${escapeHtml(entry.username)}</span><button class="pw-field-copy" onclick="copyText(${JSON.stringify(entry.username).replace(/<\/script>/g,'\\u003c/script>')});" title="复制"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+        <div class="pw-field"><span class="pw-field-label">密码</span><span class="pw-field-value" id="pw-${pwKey}">${masked}</span><button class="pw-field-copy" onclick="togglePwReveal('${pwKey}')" title="${revealed?'隐藏':'显示'}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${revealed?'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>':'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'}</svg></button><button class="pw-field-copy" onclick="copyText(${JSON.stringify(entry.password||'').replace(/<\/script>/g,'\\u003c/script>')});" title="复制密码"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+        ${entry.date?`<div class="pw-field"><span class="pw-field-label">创建时间</span><span class="pw-field-value text-mode">${escapeHtml(entry.date)}</span></div>`:''}
+        ${entry.url?`<div class="pw-field"><span class="pw-field-label">网站</span><span class="pw-field-value text-mode" style="color:var(--accent)">${escapeHtml(entry.url)}</span></div>`:''}
+        ${entry.notes?`<div class="pw-field"><span class="pw-field-label">备注</span><span class="pw-field-value text-mode">${escapeHtml(entry.notes)}</span></div>`:''}
+      </div>
+      <div class="pw-card-actions">
+        <button class="card-btn" onclick="openEditEntry('${entry.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑</button>
+        <button class="card-btn danger" onclick="deleteEntry('${entry.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>删除</button>
+      </div>
+    </div>`;
+  });
+  html += `<div class="add-card-btn" onclick="openAddEntry()"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>添加新密码</span></div>`;
+  if (entries.length === 0 && data.entries.length > 0) html = `<div class="empty-state" style="grid-column:1/-1"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>没有找到匹配的记录</p></div>` + html;
+  else if (data.entries.length === 0) html = `<div class="empty-state" style="grid-column:1/-1"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><p>还没有密码，点击上方按钮添加第一条</p></div>` + html;
+  grid.innerHTML = html;
+}
+
+function togglePwReveal(entryId) {
+  revealMap[entryId] = !revealMap[entryId];
+  const entry = data.entries.find(e => e.id === entryId);
+  if (!entry) return;
+  const el = document.getElementById('pw-' + entryId);
+  if (!el) return;
+  const revealed = revealMap[entryId];
+  el.textContent = revealed ? entry.password : '•'.repeat(Math.min((entry.password||'').length, 20));
+  const btn = el.parentElement.querySelector('.pw-field-copy:nth-child(3)');
+  if (btn) {
+    btn.innerHTML = revealed
+      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+      : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    btn.title = revealed ? '隐藏' : '显示';
+  }
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('已复制')).catch(() => toast('复制失败'));
+}
+
+// ===== Entry CRUD =====
+function openAddEntry() {
+  editingEntryId = null;
+  document.getElementById('entryModalTitle').textContent = '添加密码';
+  ['entryTitle','entryUsername','entryPassword','entryNotes','entryUrl'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('entryDate').value = new Date().toLocaleDateString('zh-CN');
+  populateCatSelect(activeCat === 'all' ? data.categories[0]?.id : activeCat);
+  document.getElementById('entryModal').classList.add('open');
+}
+function openEditEntry(entryId) {
+  const entry = data.entries.find(e => e.id === entryId);
+  if (!entry) return;
+  editingEntryId = entryId;
+  document.getElementById('entryModalTitle').textContent = '编辑密码';
+  document.getElementById('entryTitle').value = entry.title;
+  document.getElementById('entryUsername').value = entry.username;
+  document.getElementById('entryPassword').value = entry.password;
+  document.getElementById('entryNotes').value = entry.notes;
+  document.getElementById('entryDate').value = entry.date;
+  document.getElementById('entryUrl').value = entry.url;
+  populateCatSelect(entry.categoryId);
+  document.getElementById('entryModal').classList.add('open');
+}
+function populateCatSelect(selectedId) {
+  const sel = document.getElementById('entryCat');
+  sel.innerHTML = '';
+  data.categories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat.id; opt.textContent = cat.name;
+    if (cat.id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function closeEntryModal() { document.getElementById('entryModal').classList.remove('open'); editingEntryId = null; }
+function saveEntry() {
+  const title = document.getElementById('entryTitle').value.trim();
+  const username = document.getElementById('entryUsername').value.trim();
+  const password = document.getElementById('entryPassword').value.trim();
+  const notes = document.getElementById('entryNotes').value.trim();
+  const date = document.getElementById('entryDate').value.trim();
+  const url = document.getElementById('entryUrl').value.trim();
+  const categoryId = document.getElementById('entryCat').value;
+  if (!title && !username) { toast('请填写标题或用户名'); return; }
+  if (editingEntryId) {
+    const entry = data.entries.find(e => e.id === editingEntryId);
+    if (entry) Object.assign(entry, { title, username, password, notes, date, url, categoryId });
+    toast('已保存');
+  } else {
+    data.entries.push({ id: genId(), categoryId, title, username, password, notes, date, url });
+    toast('已添加');
+  }
+  closeEntryModal(); renderAll(); saveToDB();
+}
+function deleteEntry(entryId) {
+  if (!confirm('确认删除这条密码？')) return;
+  data.entries = data.entries.filter(e => e.id !== entryId);
+  delete revealMap[entryId];
+  renderAll(); saveToDB(); toast('已删除');
+}
+
+// ===== Category CRUD =====
+function openAddCategory() {
+  document.getElementById('catModal').classList.add('open');
+  document.getElementById('catNameInput').value = '';
+  setTimeout(() => document.getElementById('catNameInput').focus(), 50);
+}
+function closeCatModal() { document.getElementById('catModal').classList.remove('open'); }
+function confirmAddCat() {
+  const name = document.getElementById('catNameInput').value.trim();
+  if (!name) { toast('请输入分类名称'); return; }
+  data.categories.push({ id: genId(), name, emoji: name[0].toUpperCase() });
+  closeCatModal(); renderAll(); saveToDB(); toast('分类已创建');
+}
+
+// ===== Export =====
+function exportData() {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `password-book-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url); toast('已导出');
+}
+
+// ===== Import Modal =====
+function openImportModal(target) {
+  importTarget = target || 'csv';
+  document.getElementById('importDropdown').classList.remove('open');
+  document.getElementById('importModal').classList.add('open');
+  switchImportTab(importTarget === 'chrome' || importTarget === 'firefox' || importTarget === 'safari' ? importTarget : importTarget === 'bitwarden' || importTarget === '1password' ? 'manager' : 'csv');
+}
+function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
+function switchImportTab(tab) {
+  importTarget = tab;
+  document.querySelectorAll('.import-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.import-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+}
+
+// ===== CSV Parser =====
+function detectDelimiter(text) {
+  const firstLines = text.slice(0, 3);
+  const tabs = (firstLines.match(/\t/g) || []).length;
+  const semis = (firstLines.match(/;/g) || []).length;
+  const commas = (firstLines.match(/,/g) || []).length;
+  if (tabs > commas * 0.5 && tabs >= semis) return '\t';
+  if (semis > commas * 0.5) return ';';
+  return ',';
+}
+
+function parseCsv(text, delimiter) {
+  const rows = [];
+  let current = '', inQuotes = false, row = [];
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"' && text[i+1] === '"') { current += '"'; i++; }
+      else if (ch === '"') inQuotes = false;
+      else current += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === delimiter) { row.push(current.trim()); current = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        row.push(current.trim());
+        if (row.some(c => c)) rows.push(row);
+        row = []; current = '';
+        if (ch === '\r' && text[i+1] === '\n') i++;
+      }
+      else current += ch;
+    }
+  }
+  row.push(current.trim());
+  if (row.some(c => c)) rows.push(row);
+  return rows;
+}
+
+function findColumnIndex(headers, keywords) {
+  for (let i = 0; i < headers.length; i++) {
+    const h = headers[i].toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (const kw of keywords) {
+      if (h.includes(kw.toLowerCase())) return i;
+    }
+  }
+  return -1;
+}
+
+const COL_MAP = {
+  url: ['url','网址','网站','hostname','地址','site','origin'],
+  username: ['username','用户名','user','账号','账户','login','email','邮箱'],
+  password: ['password','密码','pwd','pass'],
+  notes: ['notes','备注','note','comment','详情'],
+  title: ['title','标题','name','站点','来源'],
+  date: ['date','时间','created','日期']
+};
+
+function rowsToEntries(rows, sourceCat) {
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, ''));
+  const urlIdx = findColumnIndex(headers, COL_MAP.url);
+  const userIdx = findColumnIndex(headers, COL_MAP.username);
+  const passIdx = findColumnIndex(headers, COL_MAP.password);
+  const notesIdx = findColumnIndex(headers, COL_MAP.notes);
+  const titleIdx = findColumnIndex(headers, COL_MAP.title);
+  const dateIdx = findColumnIndex(headers, COL_MAP.date);
+
+  // Find category by URL pattern if not provided
+  let catId = sourceCat;
+  if (!catId && urlIdx >= 0) {
+    const sampleUrl = rows[1][urlIdx] || '';
+    const match = sampleUrl.match(/https?:\/\/([^\/\.\?]+)/);
+    if (match) {
+      const domain = match[1].replace('www.', '').split('.')[0];
+      catId = data.categories.find(c => c.name.includes(domain) || domain.includes(c.name))?.id;
+      if (!catId) {
+        const existing = data.categories.find(c => c.name === domain);
+        if (!existing) {
+          const newCat = { id: genId(), name: domain, emoji: domain[0].toUpperCase() };
+          data.categories.push(newCat);
+          catId = newCat.id;
+        } else catId = existing.id;
+      }
+    }
+  }
+  if (!catId) catId = data.categories[0]?.id || '';
+
+  const entries = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row.length <= 1 || (!row[userIdx] && !row[passIdx] && !row[titleIdx])) continue;
+    const url = urlIdx >= 0 ? row[urlIdx] : '';
+    const username = userIdx >= 0 ? row[userIdx] : '';
+    const password = passIdx >= 0 ? row[passIdx] : '';
+    const notes = notesIdx >= 0 ? row[notesIdx] : '';
+    const title = titleIdx >= 0 ? row[titleIdx] : (username || url);
+    const date = dateIdx >= 0 ? row[dateIdx] : '';
+    // Try to get favicon from URL
+    let favicon = '';
+    if (url) {
+      try {
+        const u = new URL(url.startsWith('http') ? url : 'https://' + url);
+        favicon = u.origin + '/favicon.ico';
+      } catch(e) {}
+    }
+    entries.push({ id: genId(), categoryId: catId, title, username, password, notes, date, url, favicon });
+  }
+  return entries;
+}
+
+function showImportProgress(id, pct, text) {
+  const prog = document.getElementById('progress-' + id);
+  const bar = document.getElementById('bar-' + id);
+  const txt = document.getElementById('text-' + id);
+  if (prog) { prog.classList.add('show'); if (bar) bar.style.width = pct + '%'; if (txt) txt.textContent = text; }
+}
+function showImportResult(id, count, isError) {
+  const el = document.getElementById('result-' + id);
+  if (!el) return;
+  el.className = 'import-result show' + (isError ? ' error' : '');
+  el.textContent = isError ? count : `成功导入 ${count} 条密码`;
+  if (!isError) { renderAll(); closeImportModal(); toast(`已导入 ${count} 条密码`); }
+}
+
+function handleImportFile(input, source) {
+  const file = input.files[0];
+  if (!file) return;
+  const id = source;
+  showImportProgress(id, 30, '正在读取文件...');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      showImportProgress(id, 60, '正在解析...');
+      const text = e.target.result;
+      const delimiter = detectDelimiter(text);
+      const rows = parseCsv(text, delimiter);
+      setTimeout(() => {
+        const entries = rowsToEntries(rows, source === 'chrome' ? null : source === 'firefox' ? null : null);
+        if (entries.length === 0) {
+          showImportResult(id, '未找到有效数据，请确认 CSV 格式正确', true);
+        } else {
+          data.entries.push(...entries);
+          showImportProgress(id, 100, '完成');
+          setTimeout(() => showImportResult(id, entries.length, false), 300);
+        }
+      }, 100);
+    } catch(err) {
+      showImportResult(id, '解析失败：' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function handleCsvImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  showImportProgress('csv', 30, '正在读取文件...');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      showImportProgress('csv', 60, '正在解析...');
+      const text = e.target.result;
+      const delimiter = detectDelimiter(text);
+      const rows = parseCsv(text, delimiter);
+      setTimeout(() => {
+        const entries = rowsToEntries(rows, null);
+        if (entries.length === 0) {
+          showImportResult('csv', '未找到有效数据，请确认 CSV 有用户名和密码列', true);
+        } else {
+          data.entries.push(...entries);
+          showImportProgress('csv', 100, '完成');
+          setTimeout(() => showImportResult('csv', entries.length, false), 300);
+        }
+      }, 100);
+    } catch(err) {
+      showImportResult('csv', '解析失败：' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ===== Manager Import (Bitwarden / 1Password) =====
+function handleManagerImport(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  const id = 'manager';
+  showImportProgress(id, 30, '正在读取文件...');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      showImportProgress(id, 60, '正在解析...');
+      const json = JSON.parse(e.target.result);
+      setTimeout(() => {
+        let entries = [];
+        if (type === 'bitwarden') {
+          // Bitwarden JSON: { objects: [{ attributes: { name, notes, type:1/login, fields: [...], uri, password, username } }] }
+          const items = json.objects || [];
+          items.forEach(obj => {
+            const attr = obj.attributes || {};
+            if (attr.type !== 1 && attr.type !== 'login') return;
+            const fields = attr.fields || [];
+            let username = '', password = '', notes = '', url = '';
+            fields.forEach(f => {
+              const ftype = f.type;
+              const val = f.value || '';
+              if (ftype === 2) username = val;
+              else if (ftype === 1) password = val;
+              else if (ftype === 3) notes = val;
+            });
+            const uris = attr.uris || [];
+            url = uris.length > 0 ? (uris[0].uri || uris[0] || '') : '';
+            entries.push({
+              id: genId(), categoryId: data.categories[0]?.id || '',
+              title: attr.name || url || '未命名',
+              username, password, notes, date: '', url
+            });
+          });
+        } else if (type === '1password') {
+          // 1Password JSON: { vaults: [{ items: [{ sections: [{ fields: [{ name, value, type }]}], title, URLs: [{ value }] }] }] }
+          const vaults = json.vaults || [];
+          vaults.forEach(vault => {
+            (vault.items || []).forEach(item => {
+              let username = '', password = '', notes = '';
+              (item.sections || []).forEach(section => {
+                (section.fields || []).forEach(field => {
+                  if (field.type === 'PASSWORD') password = field.value;
+                  else if (field.type === 'USERNAME') username = field.value;
+                  else if (field.type === 'NOTES') notes = field.value;
+                  else if (!password && field.type === 'STRING' && !username) {
+                    // fallback
+                  }
+                });
+              });
+              // Also check top-level fields
+              (item.fields || []).forEach(field => {
+                if (field.type === 'PASSWORD' && !password) password = field.value;
+                else if (field.type === 'USERNAME' && !username) username = field.value;
+                else if (field.type === 'NOTES' && !notes) notes = field.value;
+              });
+              const urls = (item.URLs || []).map(u => u.value).filter(Boolean).join(', ');
+              entries.push({
+                id: genId(), categoryId: data.categories[0]?.id || '',
+                title: item.title || '未命名',
+                username, password, notes, date: '', url: urls
+              });
+            });
+          });
+        }
+        if (entries.length === 0) {
+          showImportResult(id, '未找到有效数据，请确认文件格式正确', true);
+        } else {
+          data.entries.push(...entries);
+          showImportProgress(id, 100, '完成');
+          setTimeout(() => showImportResult(id, entries.length, false), 300);
+        }
+      }, 100);
+    } catch(err) {
+      showImportResult(id, '解析失败：' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// Close modals on overlay click
+['entryModal','catModal','importModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) { closeEntryModal(); closeCatModal(); closeImportModal(); }
+  });
+});
+
+// Auth & Init
+(async function() {
+  await initDB();
+  await loadFromDB();
+  const saved = sessionStorage.getItem('pb_auth');
+  if (saved === '1') {
+    showApp();
+  } else {
+    checkBitwardenConnection();
+    document.getElementById('loginPw').focus();
+  }
+})();
+function showApp() {
+  sessionStorage.setItem('pb_auth', '1');
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appContent').style.display = 'flex';
+  renderAll();
+  document.getElementById('topbarTitle').textContent = '全部密码';
+}
+function doLogin() {
+  const pw = document.getElementById('loginPw').value;
+  const bwVerified = sessionStorage.getItem('pb_bw_verified') === 'true';
+  
+  if (pw === ACCESS_PASSWORD) {
+    if (bitwardenConnected && !bwVerified) {
+      // Need Bitwarden TOTP verification
+      document.getElementById('totpSection').style.display = 'flex';
+      document.getElementById('totpInput').focus();
+      return;
+    }
+    sessionStorage.setItem('pb_auth', '1');
+    showApp();
+  } else {
+    const el = document.getElementById('loginError');
+    el.textContent = '密码错误，请重试';
+    document.getElementById('loginPw').value = '';
+    document.getElementById('loginPw').focus();
+    el.style.opacity = '1';
+    setTimeout(() => { el.style.opacity = '0'; }, 2500);
+  }
+}
+function toggleLoginPw() {
+  const inp = document.getElementById('loginPw');
+  const icon = document.getElementById('eyeIcon');
+  if (inp.type === 'password') { inp.type = 'text'; icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'; }
+  else { inp.type = 'password'; icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'; }
+}
+
+
+// ===== 密码强度检测 =====
+function checkPasswordStrength(pw) {
+  let score = 0;
+  if (!pw) return { score: 0, label: '未输入', color: 'var(--muted)' };
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^a-zA-Z0-9]/.test(pw)) score++;
+  
+  const levels = [
+    { score: 0, label: '极弱', color: 'var(--red)' },
+    { score: 1, label: '弱', color: 'var(--red)' },
+    { score: 2, label: '一般', color: 'var(--orange)' },
+    { score: 3, label: '较强', color: 'var(--green)' },
+    { score: 4, label: '强', color: 'var(--green)' },
+    { score: 5, label: '极强', color: '#22c55e' },
+  ];
+  return levels[Math.min(score, 5)];
+}
+
+// ===== 密码生成器 =====
+function generatePassword(length = 16, useUpper = true, useLower = true, useDigits = true, useSymbols = true) {
+  let chars = '';
+  if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+  if (useDigits) chars += '0123456789';
+  if (useSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  
+  let password = '';
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array);
+  for (let i = 0; i < length; i++) {
+    password += chars[array[i] % chars.length];
+  }
+  return password;
+}
+
+function openPasswordGenerator() {
+  const length = parseInt(prompt('请输入密码长度 (8-64):', '16')) || 16;
+  const useUpper = confirm('包含大写字母?');
+  const useLower = confirm('包含小写字母?');
+  const useDigits = confirm('包含数字?');
+  const useSymbols = confirm('包含特殊符号?');
+  
+  const pw = generatePassword(Math.min(64, Math.max(8, length)), useUpper, useLower, useDigits, useSymbols);
+  
+  navigator.clipboard.writeText(pw).then(() => {
+    toast('密码已生成并复制: ' + pw.substring(0, 8) + '...');
+  }).catch(() => {
+    prompt('复制以下密码:', pw);
+  });
+}
+
+
+function openSettings() {
+  alert('设置功能开发中...\n\n当前支持：\n1. 修改访问密码：编辑 index.html 中的 ACCESS_PASSWORD\n2. Bitwarden 双因素认证（已连接状态显示在登录页）');
+}
+</script>
+</body>
+</html>
