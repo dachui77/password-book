@@ -162,8 +162,7 @@
     </div>
     <div style="margin-top:20px;font-size:11px;color:var(--muted);line-height:1.6;">
       默认密码：<code style="background:var(--border);color:var(--text);padding:1px 6px;border-radius:4px;">admin123</code><br>
-      <button onclick="openPasswordGenerator()" style="margin-top:8px;padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;">生成强密码</button><br>
-      <button onclick="clearAllData()" style="margin-top:8px;padding:6px 16px;border-radius:8px;border:1px solid var(--red);background:transparent;color:var(--red);cursor:pointer;font-size:12px;">清除所有数据</button>
+      <button onclick="openPasswordGenerator()" style="margin-top:8px;padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;">生成强密码</button>
     </div>
   </div>
 </div>
@@ -232,7 +231,9 @@
           </div>
           <div class="dropdown-divider"></div>
           <div class="dropdown-item-label">从密码管理器导入</div>
-          <div class="dropdown-item" onclick="openImportModal('bitwarden')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="dropdown-item" onclick="openImportModal('1password')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>1Password (JSON)</span>
           </div>
@@ -363,13 +364,7 @@
 
 <script>
 const DEFAULT_DATA = {
-  categories: [
-    { id: 'google', name: '谷歌', emoji: 'G' },
-    { id: 'oracle', name: '甲骨文', emoji: 'O' },
-    { id: 'social', name: '社交媒体', emoji: 'S' },
-    { id: 'cloud', name: '云服务', emoji: '☁' },
-    { id: 'other', name: '其他', emoji: '🔑' }
-  ],
+  categories: [],
   entries: []
 };
 
@@ -913,42 +908,9 @@ function toggleLoginPw() {
   });
 });
 
-// 清除所有数据
-function clearAllData() {
-  if (!confirm('确定要清除所有密码数据？此操作不可恢复！')) return;
-  if (window.db) {
-    const tx = window.db.transaction(['entries', 'categories'], 'readwrite');
-    tx.objectStore('entries').clear();
-    tx.objectStore('categories').clear();
-    data.entries = [];
-    data.categories = [];
-    localStorage.removeItem('pb_auth');
-    location.reload();
-  } else {
-    alert('数据库未初始化');
-  }
-}
-
-// 首次访问自动清除旧数据
-function clearOldData() {
-  const lastVisit = localStorage.getItem('pb_last_visit');
-  const today = new Date().toDateString();
-  if (!lastVisit || lastVisit !== today) {
-    localStorage.setItem('pb_last_visit', today);
-    if (window.db) {
-      const tx = window.db.transaction(['entries', 'categories'], 'readwrite');
-      tx.objectStore('entries').clear();
-      tx.objectStore('categories').clear();
-      data.entries = [];
-      data.categories = [];
-    }
-  }
-}
-
 // Init
 (async function() {
   await initDB();
-  clearOldData();
   await loadFromDB();
   const saved = sessionStorage.getItem('pb_auth');
   if (saved === '1') {
