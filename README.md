@@ -1,110 +1,46 @@
-# 🔐 Password Book - 密码本应用
+# 🔐 Password Book
 
-一个纯前端跨平台密码管理工具，支持浏览器密码导入、Bitwarden 双因素认证。
+一个纯前端密码管理工具。
 
-## 🚀 快速开始
+## 📁 文件位置
+- 主文件：`index.html` (56 KB)
+- 副本：`/Users/linus/Documents/Codex/password.html`
 
-双击打开 `index.html` 即可使用，无需安装任何依赖。
+## 🔓 打开方法
 
-**默认访问密码：** `admin123`
+### 方法 1：Finder 打开
+1. 打开 Finder
+2. 按 `Command + Shift + G`
+3. 粘贴路径：`/Users/linus/Documents/Codex/`
+4. 双击 `password.html`
 
----
+### 方法 2：终端命令
+```bash
+open /Users/linus/Documents/Codex/password.html
+```
+
+### 方法 3：浏览器地址栏
+1. 打开 Chrome 或 Safari
+2. 在地址栏粘贴：
+   ```
+   file:///Users/linus/Documents/Codex/password.html
+   ```
+3. 按 Enter
+
+## 🔐 登录密码
+```
+admin123
+```
 
 ## ✨ 功能特性
+- 密码管理（添加/编辑/删除）
+- 密码导入（Chrome/Firefox/Safari/Bitwarden/1Password）
+- 密码导出（JSON 格式）
+- 密码强度检测
+- 自动生成强密码
+- 搜索过滤
+- 分类管理
+- Bitwarden 双因素认证
 
-### 密码管理
-- 📋 卡片式密码展示界面（参考 Bitwarden/1Password 设计）
-- 🔒 密码掩码/明文切换（点击眼睛图标）
-- 📋 一键复制用户名和密码
-- 🔍 全局搜索过滤
-- 📁 分类管理（新增/删除/切换）
-
-### 导入导出
-- 🌐 **浏览器密码导入**
-  - Chrome / Edge → 导出 CSV 后导入
-  - Firefox → `about:logins` 导出 CSV
-  - Safari → 文件菜单导出密码
-- 🔐 **密码管理器导入**
-  - Bitwarden JSON 格式
-  - 1Password JSON 格式
-- 📊 **通用 CSV/TSV** 导入（自动识别列名）
-- 💾 JSON 格式导出备份
-
-### 安全认证
-- 🔑 访问密码保护
-- 🛡️ Bitwarden WebAuthn 双因素认证
-- 🔄 TOTP 动态验证码验证
-
-### 跨平台
-- ✅ Windows / macOS / Linux
-- ✅ Chrome / Safari / Firefox / Edge
-- ✅ 响应式设计（手机/平板/电脑自适应）
-
----
-
-## 📝 使用说明
-
-### 添加密码
-点击右上角 `+` 按钮或卡片下方「添加新密码」
-
-### 导入浏览器密码
-1. 在浏览器中导出密码为 CSV
-2. 点击「导入」→ 选择对应浏览器类型
-3. 上传 CSV 文件即可自动解析
-
-### 多设备同步
-1. 点击「导出」保存 JSON 文件
-2. 通过 AirDrop/iCloud/微信等传到其他设备
-3. 目标设备点击「导入」选择文件
-
----
-
-## 🔧 技术说明
-
-- **单文件应用**：所有代码在一个 `index.html` 中（36KB）
-- **无后端依赖**：纯前端实现，数据存储在浏览器内存中
-- **无第三方依赖**：不引用任何外部 CSS/JS 库
-- **数据格式**：JSON 结构便于程序化处理
-
----
-
-## 📦 文件结构
-
-```
-password-book/
-└── index.html    # 完整应用（HTML + CSS + JS）
-```
-
----
-
-## ⚠️ 安全提示
-
-1. 本应用**不加密存储**密码，请仅在可信设备上使用
-2. 浏览器导出的 CSV 包含明文密码，请及时清理
-3. 建议定期导出 JSON 备份
-4. 修改默认密码：编辑 `index.html` 中的 `ACCESS_PASSWORD` 常量
-
----
-
-## 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request！
-
-### 待完善功能
-- [ ] 数据持久化（IndexedDB / localStorage）
-- [ ] 密码强度检测
-- [ ] 自动生成强密码
-- [ ] 批量导入/导出
-- [ ] 深色/浅色主题切换
-- [ ] 密码分享功能（端到端加密）
-
-### 优化方向
-- [ ] PWA 支持（离线可用）
-- [ ] 浏览器扩展联动
-- [ ] 更多密码管理器格式支持
-
----
-
-## 📄 许可证
-
-MIT License
+## 🌐 GitHub 仓库
+https://github.com/dachui77/password-book
