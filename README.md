@@ -1,110 +1,71 @@
-# 🔐 Password Book - 密码本应用
+# 🔐 Password Book
 
-一个纯前端跨平台密码管理工具，支持浏览器密码导入、Bitwarden 双因素认证。
+一个单文件密码管理器，支持离线使用，无需服务器。
 
-## 🚀 快速开始
+## 使用方法
 
-双击打开 `index.html` 即可使用，无需安装任何依赖。
+### 直接打开
 
-**默认访问密码：** `admin123`
+1. 打开 Safari 浏览器
+2. 按 `Cmd + O`（或 文件 → 打开...）
+3. 选择文件：`/Users/linus/Documents/Codex/password-book/index.html`
+4. 输入密码：**admin123**
 
----
+### 终端快速打开
 
-## ✨ 功能特性
-
-### 密码管理
-- 📋 卡片式密码展示界面（参考 Bitwarden/1Password 设计）
-- 🔒 密码掩码/明文切换（点击眼睛图标）
-- 📋 一键复制用户名和密码
-- 🔍 全局搜索过滤
-- 📁 分类管理（新增/删除/切换）
-
-### 导入导出
-- 🌐 **浏览器密码导入**
-  - Chrome / Edge → 导出 CSV 后导入
-  - Firefox → `about:logins` 导出 CSV
-  - Safari → 文件菜单导出密码
-- 🔐 **密码管理器导入**
-  - Bitwarden JSON 格式
-  - 1Password JSON 格式
-- 📊 **通用 CSV/TSV** 导入（自动识别列名）
-- 💾 JSON 格式导出备份
-
-### 安全认证
-- 🔑 访问密码保护
-- 🛡️ Bitwarden WebAuthn 双因素认证
-- 🔄 TOTP 动态验证码验证
-
-### 跨平台
-- ✅ Windows / macOS / Linux
-- ✅ Chrome / Safari / Firefox / Edge
-- ✅ 响应式设计（手机/平板/电脑自适应）
-
----
-
-## 📝 使用说明
-
-### 添加密码
-点击右上角 `+` 按钮或卡片下方「添加新密码」
-
-### 导入浏览器密码
-1. 在浏览器中导出密码为 CSV
-2. 点击「导入」→ 选择对应浏览器类型
-3. 上传 CSV 文件即可自动解析
-
-### 多设备同步
-1. 点击「导出」保存 JSON 文件
-2. 通过 AirDrop/iCloud/微信等传到其他设备
-3. 目标设备点击「导入」选择文件
-
----
-
-## 🔧 技术说明
-
-- **单文件应用**：所有代码在一个 `index.html` 中（36KB）
-- **无后端依赖**：纯前端实现，数据存储在浏览器内存中
-- **无第三方依赖**：不引用任何外部 CSS/JS 库
-- **数据格式**：JSON 结构便于程序化处理
-
----
-
-## 📦 文件结构
-
-```
-password-book/
-└── index.html    # 完整应用（HTML + CSS + JS）
+```bash
+open /Users/linus/Documents/Codex/password-book/index.html
 ```
 
----
+## 功能
 
-## ⚠️ 安全提示
+- 保存网站账号密码（谷歌、甲骨文等）
+- 密码强度检测与生成
+- 从浏览器/密码管理器导入（Chrome/Firefox/Safari CSV，Bitwarden/1Password JSON）
+- 导出为 CSV/JSON
+- **支持 TOTP 双因素认证（2FA）**
+- 数据存储在浏览器本地（IndexedDB）
 
-1. 本应用**不加密存储**密码，请仅在可信设备上使用
-2. 浏览器导出的 CSV 包含明文密码，请及时清理
-3. 建议定期导出 JSON 备份
-4. 修改默认密码：编辑 `index.html` 中的 `ACCESS_PASSWORD` 常量
+## 双因素认证 (2FA)
 
----
+### 启用步骤（在登录页面操作）
 
-## 🤝 贡献指南
+1. 打开应用，在密码输入框下方找到 **"+ 启用 2FA"** 按钮
+2. 点击后会出现二维码和密钥
+3. 用 Authenticator App 扫描二维码（支持 Google/Microsoft Authenticator、1Password、Authy）
+4. 在 App 中查看生成的 6 位验证码
+5. 输入验证码，点击 **"确认已添加"** 完成设置
 
-欢迎提交 Issue 和 Pull Request！
+### 登录时
 
-### 待完善功能
-- [ ] 数据持久化（IndexedDB / localStorage）
-- [ ] 密码强度检测
-- [ ] 自动生成强密码
-- [ ] 批量导入/导出
-- [ ] 深色/浅色主题切换
-- [ ] 密码分享功能（端到端加密）
+1. 输入访问密码（默认：`admin123`）
+2. 如已启用 2FA，需再输入 Authenticator App 中的 6 位验证码
 
-### 优化方向
-- [ ] PWA 支持（离线可用）
-- [ ] 浏览器扩展联动
-- [ ] 更多密码管理器格式支持
+### 重要提示
 
----
+- 请妥善保管恢复密钥，丢失将无法找回账户
+- 可在登录页面点击 **"关闭 2FA"** 随时禁用
+- 2FA 密钥保存在浏览器本地，不上传任何服务器
 
-## 📄 许可证
+## 导入密码
 
-MIT License
+### Chrome / Edge
+1. 访问 `chrome://settings/passwords`
+2. 点击右上角 ⋮ → **导出密码**
+3. 下载 CSV 后在本应用上传
+
+### Firefox
+1. 访问 `about:logins`
+2. 右上角 ⋮ → **导出登录名**
+3. 下载 CSV 后上传
+
+### Bitwarden
+1. Bitwarden → 设置 → 导出账户数据
+2. 选择 JSON 格式
+3. 在本应用上传
+
+## GitHub Pages 部署（多设备同步）
+
+1. 将本仓库推送到 GitHub
+2. 进入 Settings → Pages → Source: main branch
+3. 访问 `https://用户名.github.io/password-book`
