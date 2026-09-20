@@ -908,9 +908,26 @@ function toggleLoginPw() {
   });
 });
 
+// 首次访问自动清除旧数据
+function clearOldData() {
+  const lastVisit = localStorage.getItem('pb_last_visit');
+  const today = new Date().toDateString();
+  if (!lastVisit || lastVisit !== today) {
+    localStorage.setItem('pb_last_visit', today);
+    if (window.db) {
+      const tx = window.db.transaction(['entries', 'categories'], 'readwrite');
+      tx.objectStore('entries').clear();
+      tx.objectStore('categories').clear();
+      data.entries = [];
+      data.categories = [];
+    }
+  }
+}
+
 // Init
 (async function() {
   await initDB();
+  clearOldData();
   await loadFromDB();
   const saved = sessionStorage.getItem('pb_auth');
   if (saved === '1') {
