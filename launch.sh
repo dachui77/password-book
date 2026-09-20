@@ -1,0 +1,17 @@
+#!/bin/bash
+echo "🔐 Password Book"
+echo ""
+echo "服务器已启动，请在浏览器中访问："
+echo ""
+echo "  http://localhost:3000"
+echo "  http://localhost:8000"
+echo "  http://localhost:8888"
+echo "  http://localhost:9999"
+echo ""
+echo "或者直接打开文件："
+echo "  file:///Users/linus/Documents/Codex/password-book/index.html"
+echo ""
+echo "登录密码: admin123"
+echo ""
+read -p "按 Enter 打开浏览器..." 
+open http://localhost:3000/
