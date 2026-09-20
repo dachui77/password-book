@@ -517,6 +517,12 @@ function openAddCategory() {
   setTimeout(() => document.getElementById('catNameInput').focus(), 50);
 }
 function closeCatModal() { document.getElementById('catModal').classList.remove('open'); }
+
+function addCategory() {
+  document.getElementById('catModal').classList.add('open');
+  document.getElementById('catNameInput').value = '';
+  setTimeout(() => document.getElementById('catNameInput').focus(), 50);
+}
 function confirmAddCat() {
   const name = document.getElementById('catNameInput').value.trim();
   if (!name) { toast('请输入分类名称'); return; }
