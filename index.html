@@ -980,8 +980,12 @@ function saveEntry() {
   const url = document.getElementById('entryUrl').value.trim();
   const emailProvider = document.getElementById('entryEmailProvider').value.trim();
   
+  // 类别特定必填验证
   if (!title) { toast('请输入标题'); return; }
   if (!password) { toast('请输入密码'); return; }
+  if (categoryId === 'web' && !username) { toast('网站类：用户名不能为空'); return; }
+  if (categoryId === 'web' && !email) { toast('网站类：邮箱不能为空'); return; }
+  if (categoryId === 'software' && !email) { toast('软件类：邮箱不能为空'); return; }
   
   const entry = {
     id: editingEntryId || genId(),
