@@ -318,13 +318,30 @@
         <div id="strengthText" class="strength-text" style="display:none;"></div>
       </div>
       <div class="form-row" id="urlDateRow">
-        <div class="form-group">
+        <div class="form-group" id="urlField">
           <label>网站 URL</label>
           <input id="entryUrl" type="text" placeholder="https://...">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="dateField">
           <label>注册日期</label>
           <input id="entryDate" type="date">
+        </div>
+      </div>
+      <!-- 软件类特殊字段 -->
+      <div id="softwareFields" style="display:none;">
+        <div class="form-group">
+          <label>注册电话</label>
+          <input id="entryPhone" type="tel" placeholder="手机号码（可选）">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>购买日期</label>
+            <input id="entryBuyDate" type="date">
+          </div>
+          <div class="form-group">
+            <label>订阅到期</label>
+            <input id="entryExpireDate" type="date">
+          </div>
         </div>
       </div>
       <div class="form-group" id="notesGroup">
@@ -466,7 +483,7 @@ const CATEGORY_FIELDS = {
   web: ['title', 'emailProvider', 'username', 'email', 'password', 'url', 'date', 'notes'],
   email: ['title', 'emailProvider', 'email', 'password', 'date', 'notes'],
   social: ['title', 'username', 'password', 'url', 'date', 'notes'],
-  software: ['title', 'username', 'password', 'url', 'date', 'notes'],
+  software: ['title', 'email', 'username', 'password', 'phone', 'url', 'buyDate', 'expireDate', 'notes'],
   other: ['title', 'username', 'password', 'notes']
 };
 
@@ -672,8 +689,17 @@ function renderCards() {
     if (entry.url) {
       fieldsHtml += `<div class="pw-field"><span class="pw-field-label">网站</span><span class="pw-field-value text-mode">${escapeHtml(entry.url)}</span><button class="pw-field-copy" onclick="copyText('${escapeHtml(entry.url)}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>`;
     }
+    if (entry.phone) {
+      fieldsHtml += `<div class="pw-field"><span class="pw-field-label">电话</span><span class="pw-field-value text-mode">${escapeHtml(entry.phone)}</span><button class="pw-field-copy" onclick="copyText('${escapeHtml(entry.phone)}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>`;
+    }
+    if (entry.buyDate) {
+      fieldsHtml += `<div class="pw-field"><span class="pw-field-label">购买</span><span class="pw-field-value text-mode">${escapeHtml(entry.buyDate)}</span></div>`;
+    }
+    if (entry.expireDate) {
+      fieldsHtml += `<div class="pw-field"><span class="pw-field-label">到期</span><span class="pw-field-value text-mode">${escapeHtml(entry.expireDate)}</span></div>`;
+    }
     if (entry.date) {
-      fieldsHtml += `<div class="pw-field"><span class="pw-field-label">日期</span><span class="pw-field-value text-mode">${escapeHtml(entry.date)}</span></div>`;
+      fieldsHtml += `<div class="pw-field"><span class="pw-field-label">注册</span><span class="pw-field-value text-mode">${escapeHtml(entry.date)}</span></div>`;
     }
     if (entry.notes) {
       fieldsHtml += `<div class="pw-field"><span class="pw-field-label">备注</span><span class="pw-field-value text-mode">${escapeHtml(entry.notes)}</span></div>`;
@@ -876,26 +902,21 @@ function populateCatSelect(selected) {
 
 function onCategoryChange() {
   const catId = document.getElementById('entryCat').value;
-  const cat = getCategory(catId);
   
-  // 显示/隐藏邮箱服务商
-  const emailProviderGroup = document.getElementById('emailProviderGroup');
-  const emailFieldGroup = document.getElementById('emailFieldGroup');
-  const usernameEmailRow = document.getElementById('usernameEmailRow');
+  // 邮箱服务商 - 仅邮箱类显示
+  document.getElementById('emailProviderGroup').style.display = catId === 'email' ? 'block' : 'none';
   
-  if (catId === 'email') {
-    emailProviderGroup.style.display = 'block';
-    emailFieldGroup.style.display = 'block';
-    usernameEmailRow.style.display = 'grid';
-  } else if (catId === 'web' || catId === 'social' || catId === 'software') {
-    emailProviderGroup.style.display = 'none';
-    emailFieldGroup.style.display = catId === 'web' ? 'block' : 'none';
-    usernameEmailRow.style.display = 'grid';
-  } else {
-    emailProviderGroup.style.display = 'none';
-    emailFieldGroup.style.display = 'none';
-    usernameEmailRow.style.display = 'grid';
-  }
+  // 邮箱地址 - 网站类和邮箱类显示
+  document.getElementById('emailFieldGroup').style.display = (catId === 'web' || catId === 'email') ? 'block' : 'none';
+  
+  // 软件类特殊字段
+  document.getElementById('softwareFields').style.display = catId === 'software' ? 'block' : 'none';
+  
+  // 网站URL - 网站、社交、软件类显示
+  document.getElementById('urlField').style.display = (catId === 'web' || catId === 'social' || catId === 'software') ? 'block' : 'none';
+  
+  // 注册日期 - 网站、邮箱、社交、软件类显示
+  document.getElementById('dateField').style.display = (catId === 'web' || catId === 'email' || catId === 'social' || catId === 'software') ? 'block' : 'none';
 }
 
 // ===== 条目操作 =====
@@ -911,6 +932,9 @@ function openAddEntry() {
   document.getElementById('entryDate').value = '';
   document.getElementById('entryUrl').value = '';
   document.getElementById('entryEmailProvider').value = '';
+  document.getElementById('entryPhone').value = '';
+  document.getElementById('entryBuyDate').value = '';
+  document.getElementById('entryExpireDate').value = '';
   document.getElementById('strengthBar').style.display = 'none';
   document.getElementById('strengthText').style.display = 'none';
   populateCatSelect(document.getElementById('entryCat').value);
@@ -933,6 +957,9 @@ function editEntry(id) {
   document.getElementById('entryDate').value = entry.date || '';
   document.getElementById('entryUrl').value = entry.url || '';
   document.getElementById('entryEmailProvider').value = entry.emailProvider || '';
+  document.getElementById('entryPhone').value = entry.phone || '';
+  document.getElementById('entryBuyDate').value = entry.buyDate || '';
+  document.getElementById('entryExpireDate').value = entry.expireDate || '';
   updateStrength(document.getElementById('entryPassword'));
   onCategoryChange();
   document.getElementById('entryModal').classList.add('open');
@@ -963,10 +990,13 @@ function saveEntry() {
     username,
     password,
     email,
+    emailProvider,
+    phone: document.getElementById('entryPhone')?.value.trim() || '',
+    buyDate: document.getElementById('entryBuyDate')?.value || '',
+    expireDate: document.getElementById('entryExpireDate')?.value || '',
     notes,
     date,
-    url,
-    emailProvider
+    url
   };
   
   if (editingEntryId) {
