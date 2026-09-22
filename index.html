@@ -4,12 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Password Book</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#6c8aff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="密码本">
-<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -141,40 +135,10 @@
     .content { padding: 16px; }
     .form-row { grid-template-columns: 1fr; }
   }
-  
-  .totp-field { display: flex; gap: 8px; align-items: center; }
-  .totp-field input { flex: 1; }
-  .qr-container { background: #fff; border-radius: 12px; padding: 16px; display: inline-block; margin: 8px 0; }
-  .qr-container svg { display: block; }
-  .secret-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: monospace; font-size: 14px; letter-spacing: 2px; text-align: center; margin: 8px 0; word-break: break-all; }
-  .recovery-box { background: rgba(239,92,92,.08); border: 1px solid rgba(239,92,92,.2); border-radius: 8px; padding: 12px; font-size: 12px; color: var(--red); margin: 8px 0; line-height: 1.7; }
-  .setup-steps { font-size: 12px; color: var(--muted); line-height: 2; margin: 10px 0; }
-  .setup-steps li { margin-left: 16px; }
-  .twofa-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; margin-left: 8px; }
-  .twofa-badge.on { background: rgba(52,211,153,.15); color: var(--green); }
-  .twofa-badge.off { background: var(--surface2); color: var(--muted); }
-  .settings-btn { height: 34px; width: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .12s; }
-  .settings-btn:hover { border-color: var(--border2); color: var(--text); }
-  .settings-btn svg { width: 15px; height: 15px; }
-::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 </style>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(reg => {
-    console.log('SW registered:', reg.scope);
-  }).catch(err => console.log('SW failed:', err));
-}
-// PWA install prompt
-let pwManifest = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  pwManifest = e;
-  const btn = document.getElementById('installBtn');
-  if (btn) btn.style.display = 'flex';
-});
-</script>
 </head>
 <body>
 
@@ -185,21 +149,18 @@ window.addEventListener('beforeinstallprompt', (e) => {
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <div style="font-size:22px;font-weight:700;margin-bottom:6px;">Password Book</div>
-    <div id="loginStep1" style="font-size:13px;color:var(--muted);margin-bottom:28px;">请输入访问密码以继续</div>
-    <div id="loginStep2" style="display:none;font-size:13px;color:var(--muted);margin-bottom:28px;">请输入 Authenticator App 中的 6 位验证码</div>
-    <div id="pwInputWrap">
-      <input id="loginPw" type="password" placeholder="输入访问密码" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="off" style="width:100%;height:48px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0 44px 0 16px;color:var(--text);font-size:15px;outline:none;margin-bottom:14px;">
-      <button onclick="toggleLoginPw()" style="position:absolute;right:60px;top: calc(50% + 36px);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;" title="显示密码">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;">请输入访问密码以继续</div>
+    <input id="loginPw" type="password" placeholder="输入访问密码" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="off" style="width:100%;height:48px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0 44px 0 16px;color:var(--text);font-size:15px;outline:none;margin-bottom:14px;">
+    <button onclick="toggleLoginPw()" style="position:absolute;right:60px;top: calc(50% + 36px);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;" title="显示密码">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button onclick="doLogin()" style="width:100%;height:48px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;">登 录</button>
+    <div id="loginError" style="font-size:12px;color:var(--red);margin-bottom:10px;"></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
       </button>
+      </div>
     </div>
-    <div id="totpInputWrap" style="display:none;">
-      <input id="loginTotp" type="text" maxlength="6" placeholder="输入 6 位验证码" onkeydown="if(event.key==='Enter')doTotpLogin()" autocomplete="off" style="width:100%;height:48px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0 16px;color:var(--text);font-size:20px;letter-spacing:8px;text-align:center;outline:none;margin-bottom:14px;font-family:monospace;">
-    </div>
-    <button onclick="doLogin()" id="loginBtn1" style="width:100%;height:48px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;">登 录</button>
-    <button onclick="doTotpLogin()" id="loginBtn2" style="width:100%;height:48px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;display:none;">验 证</button>
-    <div id="loginError" style="font-size:12px;color:var(--red);margin-bottom:10px;min-height:18px;"></div>
-    <div id="loginFooter" style="margin-top:20px;font-size:11px;color:var(--muted);line-height:1.7;">
+    <div style="margin-top:20px;font-size:11px;color:var(--muted);line-height:1.6;">
       默认密码：<code style="background:var(--border);color:var(--text);padding:1px 6px;border-radius:4px;">admin123</code><br>
       <button onclick="openPasswordGenerator()" style="margin-top:8px;padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;">生成强密码</button>
     </div>
@@ -244,13 +205,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     </div>
     <div class="topbar-actions">
       <span class="topbar-title" id="topbarTitle">全部密码</span>
-      <div id="securityHint" style="display:none;align-items:center;gap:6px;padding:0 10px;border-radius:8px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);cursor:pointer;font-size:12px;color:var(--orange);" onclick="openSecurityPrompt()" title="完善安全设置">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>建议启用双因素认证</span>
-      </div>
-      <button class="settings-btn" onclick="openSettingsModal()" title="设置">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
       <button style="height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:5px;" onclick="exportData()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         导出
@@ -406,101 +360,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
   </div>
 </div>
 
-<!-- Security Prompt Modal -->
-<div class="modal-overlay" id="securityModal">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-header">
-      <h3>🔒 完善账户安全</h3>
-      <button class="modal-close" onclick="closeSecurityModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:16px;">
-        您的账户目前仅使用访问密码保护。如果密码泄露，他人可以查看所有密码。<br><br>
-        <strong style="color:var(--orange);">双因素认证 (2FA)</strong> 需要在登录时额外输入 Authenticator App（如 Google/Microsoft Authenticator、1Password）中的动态验证码。即使密码泄露，账户仍然安全。
-      </p>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px;">
-        <strong style="color:var(--text);">2FA 适用场景：</strong><br>
-        ✓ 管理大量重要账户密码<br>
-        ✓ 希望在公共设备上也保持安全<br>
-        ✓ 对账户安全有较高要求
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeSecurityModal()">暂时不需要</button>
-      <button class="btn btn-primary" onclick="closeSecurityModal();openTotpSetup()">去设置</button>
-    </div>
-  </div>
-</div>
-
-<!-- 2FA Setup Modal -->
-<div class="modal-overlay" id="totpModal">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-header">
-      <h3 id="totpModalTitle">双因素认证 (2FA)</h3>
-      <button class="modal-close" onclick="closeTotpModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body" id="totpModalBody">
-      <!-- Content injected by JS -->
-    </div>
-    <div class="modal-footer" id="totpModalFooter">
-      <button class="btn" onclick="closeTotpModal()">关闭</button>
-    </div>
-  </div>
-</div>
-
-<!-- Settings Modal -->
-<div class="modal-overlay" id="settingsModal">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-header">
-      <h3>设置</h3>
-      <button class="modal-close" onclick="closeSettingsModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>访问密码</label>
-        <input id="settingsNewPw" type="password" placeholder="输入新密码（留空保持不变）">
-      </div>
-      <div class="form-group">
-        <label>双因素认证 (2FA)</label>
-        <div id="totpSection" style="display:flex;gap:8px;align-items:center;">
-          <button class="btn" style="flex:1;" onclick="openTotpSetup()" id="totpStatusBtn">未启用</button>
-          <span class="twofa-badge off" id="totpBadge">OFF</span>
-        </div>
-        <div id="totpActiveHint" style="display:none;margin-top:8px;padding:10px 12px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:8px;font-size:12px;color:var(--green);">
-          ✓ 已启用双因素认证。下次登录需要输入验证码。
-        </div>
-      </div>
-      <div class="form-group">
-        <label>数据管理</label>
-        <div style="display:flex;gap:8px;">
-          <button class="btn" style="flex:1;" onclick="exportData()">导出 JSON</button>
-          <button class="btn danger" style="flex:1;color:var(--red);border-color:var(--red);" onclick="clearAllData()">清除所有数据</button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeSettingsModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveSettings()">保存</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 const DEFAULT_DATA = {
-  categories: [
-    { id: 'google', name: '谷歌', emoji: 'G' },
-    { id: 'oracle', name: '甲骨文', emoji: 'O' }
-  ],
-  entries: [],
-  twofa: { enabled: false, secret: null, createdAt: null }
+  categories: [],
+  entries: []
 };
 
 let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -587,10 +452,6 @@ async function saveToDB() {
     data.categories.forEach(c => catsStore.add(c));
     await tx.done;
   } catch(e) { console.error('Save error:', e); }
-  // Persist 2FA config to localStorage
-  if (data.twofa) {
-    localStorage.setItem('pb_twofa', JSON.stringify(data.twofa));
-  }
 }
 
 async function loadFromDB() {
@@ -610,11 +471,6 @@ async function loadFromDB() {
     if (entries.length > 0 || categories.length > 0) {
       data.entries = entries;
       data.categories = categories;
-    }
-    // Load 2FA config from localStorage
-    const twofaStr = localStorage.getItem('pb_twofa');
-    if (twofaStr) {
-      try { data.twofa = JSON.parse(twofaStr); } catch(e) {}
     }
   } catch(e) { console.error('Load error:', e); }
 }
@@ -991,320 +847,6 @@ function handleManagerImport(input, type) {
 
 
 
-
-// ===== 2FA / TOTP =====
-const TOTP_ALGO = 'SHA-1';
-const TOTP_DIGITS = 6;
-const TOTP_PERIOD = 30;
-
-function generateSecret() {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  return toBase32(bytes);
-}
-
-function toBase32(bytes) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-  let result = '';
-  let buffer = 0;
-  let bits = 0;
-  for (const b of bytes) {
-    buffer = (buffer << 8) | b;
-    bits += 8;
-    while (bits >= 5) {
-      bits -= 5;
-      result += chars[(buffer >> bits) & 31];
-    }
-  }
-  if (bits > 0) result += chars[(buffer << (5 - bits)) & 31];
-  while (result.length % 8) result += '=';
-  return result;
-}
-
-function fromBase32(str) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-  str = str.toUpperCase().replace(/[^A-Z2-7=]/g, '');
-  let buffer = 0;
-  let bits = 0;
-  const result = [];
-  for (const c of str) {
-    const val = chars.indexOf(c);
-    if (val < 0) continue;
-    buffer = (buffer << 5) | val;
-    bits += 5;
-    while (bits >= 8) {
-      bits -= 8;
-      result.push((buffer >> bits) & 255);
-    }
-  }
-  return new Uint8Array(result);
-}
-
-async function generateTOTP(secretBytes, step = 0) {
-  const msg = new ArrayBuffer(8);
-  const view = new DataView(msg);
-  const timeStep = Math.floor(Date.now() / 1000 / TOTP_PERIOD) + step;
-  view.setUint32(4, timeStep >>> 0);
-  view.setUint32(0, timeStep >>> 24);
-
-  const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: TOTP_ALGO }, false, ['sign']);
-  const sig = await crypto.subtle.sign('HMAC', key, msg);
-  const arr = new Uint8Array(sig);
-  const offset = arr[19] & 0x0f;
-  const code = ((arr[offset] & 0x7f) << 24) | ((arr[offset + 1] & 0xff) << 16) | ((arr[offset + 2] & 0xff) << 8) | (arr[offset + 3] & 0xff);
-  return String(code % Math.pow(10, TOTP_DIGITS)).padStart(TOTP_DIGITS, '0');
-}
-
-function generateQRCodeSVG(data, size = 200) {
-  // Simple QR-like visual (for TOTP URI display)
-  // Using a proper QR encoder would be ideal but complex
-  // This generates an SVG representation of the otpauth URL
-  const div = document.createElement('div');
-  div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 21 21">
-    <rect width="21" height="21" fill="white"/>
-    <g fill="black">
-      <!-- Position patterns -->
-      <rect x="0" y="0" width="7" height="7"/><rect x="1" y="1" width="5" height="5"/><rect x="2" y="2" width="3" height="3"/>
-      <rect x="14" y="0" width="7" height="7"/><rect x="15" y="1" width="5" height="5"/><rect x="16" y="2" width="3" height="3"/>
-      <rect x="0" y="14" width="7" height="7"/><rect x="1" y="15" width="5" height="5"/><rect x="2" y="16" width="3" height="3"/>
-    </g>
-    <text x="10.5" y="11" text-anchor="middle" font-size="2" fill="black" font-family="monospace">TOTP</text>
-  </svg>`;
-  return div.innerHTML;
-}
-
-let totpSecret = null;
-
-async function openTotpSetup() {
-  const body = document.getElementById('totpModalBody');
-  const footer = document.getElementById('totpModalFooter');
-
-  if (!totpSecret) {
-    // Step 1: Generate secret and show QR
-    totpSecret = generateSecret();
-    const otpauthUrl = `otpauth://totp/PasswordBook:passwords?secret=${totpSecret}&issuer=PasswordBook&algorithm=${TOTP_ALGO}&digits=${TOTP_DIGITS}&period=${TOTP_PERIOD}`;
-    const currentCode = await generateTOTP(fromBase32(totpSecret));
-
-    body.innerHTML = `
-      <div class="setup-steps">
-        <ol>
-          <li>打开你的 Authenticator App（Google/Microsoft Authenticator、1Password 等）</li>
-          <li>扫描下方二维码，或手动输入密钥</li>
-          <li>输入 App 中显示的 6 位验证码完成绑定</li>
-        </ol>
-      </div>
-      <div class="qr-container" id="qrContainer"></div>
-      <div style="text-align:center;margin:8px 0;">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">手动输入密钥（如果无法扫描二维码）</div>
-        <div class="secret-box">${totpSecret}</div>
-      </div>
-      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px;">
-        当前验证码：<strong style="color:var(--accent);font-size:16px;font-family:monospace;letter-spacing:4px;">${currentCode}</strong>
-      </div>
-    `;
-    // Generate a real QR code using canvas
-    const qrCanvas = document.createElement('canvas');
-    qrCanvas.width = 200; qrCanvas.height = 200;
-    drawSimpleQR(qrCanvas, otpauthUrl, 200);
-    document.getElementById('qrContainer').appendChild(qrCanvas);
-
-    footer.innerHTML = `
-      <button class="btn" onclick="closeTotpModal()">取消</button>
-      <button class="btn btn-primary" onclick="verifyTotpSetup()">下一步：验证</button>
-    `;
-  } else {
-    // Step 2: Verify
-    body.innerHTML = `
-      <div class="setup-steps">
-        <ol>
-          <li>请在你的 Authenticator App 中查看当前 6 位验证码</li>
-          <li>输入下方的验证码完成绑定</li>
-        </ol>
-      </div>
-      <div class="form-group">
-        <label>6 位验证码</label>
-        <input id="setupTotpInput" type="text" maxlength="6" placeholder="输入验证码" style="text-align:center;letter-spacing:6px;font-size:18px;font-family:monospace;">
-      </div>
-    `;
-    footer.innerHTML = `
-      <button class="btn" onclick="closeTotpModal()">取消</button>
-      <button class="btn btn-primary" onclick="confirmTotpSetup()">确认绑定</button>
-    `;
-    setTimeout(() => document.getElementById('setupTotpInput')?.focus(), 50);
-  }
-  document.getElementById('totpModal').classList.add('open');
-}
-
-function drawSimpleQR(canvas, text, size) {
-  // Simple QR code generation using a basic algorithm
-  // For production, use qrcode.js library. This is a simplified version.
-  const ctx = canvas.getContext('2d');
-  const moduleCount = 21; // Version 1 QR
-  const moduleSize = size / moduleCount;
-
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, size, size);
-
-  // Encode text to binary and create a deterministic pattern
-  // This is a simplified visual representation
-  ctx.fillStyle = '#000000';
-
-  // Position detection patterns
-  function drawFinderPattern(x, y) {
-    const s = moduleSize;
-    ctx.fillRect(x * s, y * s, 7 * s, 7 * s);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect((x + 1) * s, (y + 1) * s, 5 * s, 5 * s);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect((x + 2) * s, (y + 2) * s, 3 * s, 3 * s);
-  }
-
-  drawFinderPattern(0, 0);
-  drawFinderPattern(14, 0);
-  drawFinderPattern(0, 14);
-
-  // Encode the secret into the data area
-  const bytes = new TextEncoder().encode(text);
-  let bitIdx = 0;
-  for (let row = 0; row < moduleCount; row++) {
-    for (let col = 0; col < moduleCount; col++) {
-      // Skip finder patterns
-      if ((row < 8 && col < 8) || (row < 8 && col > 12) || (row > 12 && col < 8)) continue;
-      const byteIdx = Math.floor(bitIdx / 8);
-      const bitPos = bitIdx % 8;
-      if (byteIdx < bytes.length) {
-        const bit = (bytes[byteIdx] >> (7 - bitPos)) & 1;
-        if (bit) {
-          ctx.fillRect(col * moduleSize, row * moduleSize, moduleSize, moduleSize);
-        }
-      } else {
-        // Use deterministic pattern based on position
-        if ((row * moduleCount + col) % 3 === 0) {
-          ctx.fillRect(col * moduleSize, row * moduleSize, moduleSize, moduleSize);
-        }
-      }
-      bitIdx++;
-    }
-  }
-}
-
-function verifyTotpSetup() {
-  // Move to verification step
-  totpSecret = totpSecret; // Keep the secret
-  openTotpSetup(); // Reopen to show verification step
-}
-
-async function confirmTotpSetup() {
-  const input = document.getElementById('setupTotpInput');
-  if (!input) return;
-  const code = input.value.trim();
-  if (code.length !== 6 || !/^\d+$/.test(code)) {
-    toast('请输入 6 位数字验证码'); return;
-  }
-  const expected = await generateTOTP(fromBase32(totpSecret));
-  if (code === expected) {
-    // Save 2FA config to DB
-    data.twofa = { enabled: true, secret: totpSecret, createdAt: new Date().toISOString() };
-    saveToDB();
-    closeTotpModal();
-    toast('2FA 已启用！');
-    updateTotpBadge();
-    document.getElementById('loginStep1').style.display = 'block';
-    document.getElementById('loginStep2').style.display = 'none';
-    document.getElementById('pwInputWrap').style.display = 'block';
-    document.getElementById('totpInputWrap').style.display = 'none';
-    document.getElementById('loginBtn1').style.display = 'block';
-    document.getElementById('loginBtn2').style.display = 'none';
-  } else {
-    toast('验证码错误，请重试');
-  }
-  totpSecret = null;
-}
-
-function closeTotpModal() {
-  document.getElementById('totpModal').classList.remove('open');
-  totpSecret = null;
-}
-
-function disableTotp() {
-  if (!confirm('确认关闭双因素认证？')) return;
-  data.twofa = { enabled: false, secret: null, createdAt: null };
-  saveToDB();
-  closeSettingsModal();
-  toast('2FA 已关闭');
-  updateTotpBadge();
-  // Reset login UI to password-only
-}
-
-function updateTotpBadge() {
-  const badge = document.getElementById('totpBadge');
-  const btn = document.getElementById('totpStatusBtn');
-  const activeHint = document.getElementById('totpActiveHint');
-  const totpSection = document.getElementById('totpSection');
-  if (data.twofa?.enabled) {
-    badge.className = 'twofa-badge on';
-    badge.textContent = 'ON';
-    if (btn) btn.textContent = '已启用';
-    if (totpSection) totpSection.innerHTML = `
-      <span class="twofa-badge on" style="flex:1;font-size:12px;">✓ 已启用双因素认证</span>
-      <button class="btn" style="height:32px;padding:0 10px;font-size:11px;color:var(--red);border-color:var(--red);" onclick="disableTotp()">关闭</button>
-    `;
-    if (activeHint) activeHint.style.display = 'block';
-  } else {
-    badge.className = 'twofa-badge off';
-    badge.textContent = 'OFF';
-    if (btn) btn.textContent = '未启用';
-    if (totpSection) totpSection.innerHTML = `
-      <button class="btn" style="flex:1;" onclick="openTotpSetup()" id="totpStatusBtn">去设置</button>
-      <span class="twofa-badge off" id="totpBadge">OFF</span>
-    `;
-    if (activeHint) activeHint.style.display = 'none';
-  }
-  updateSecurityHint();
-}
-
-function openSettingsModal() {
-  updateTotpBadge();
-  document.getElementById('settingsModal').classList.add('open');
-}
-
-function openSecurityPrompt() {
-  if (!data.twofa?.enabled) {
-    document.getElementById('securityModal').classList.add('open');
-  }
-}
-function closeSecurityModal() {
-  document.getElementById('securityModal').classList.remove('open');
-}
-
-// Show security hint if 2FA not enabled
-function updateSecurityHint() {
-  const hint = document.getElementById('securityHint');
-  if (hint) {
-    hint.style.display = data.twofa?.enabled ? 'none' : 'flex';
-  }
-}
-
-function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('open'); }
-function saveSettings() {
-  const newPw = document.getElementById('settingsNewPw').value.trim();
-  if (newPw) {
-    localStorage.setItem('pb_access_pw', newPw);
-    toast('访问密码已更新');
-  }
-  closeSettingsModal();
-}
-function clearAllData() {
-  if (!confirm('确认清除所有密码数据？此操作不可撤销！')) return;
-  if (!confirm('再次确认：所有密码将被永久删除！')) return;
-  data.entries = [];
-  data.categories = [];
-  saveToDB();
-  renderAll();
-  toast('所有数据已清除');
-  closeSettingsModal();
-}
-
 // Password Generator
 function generatePassword(length = 16, useUpper = true, useLower = true, useDigits = true, useSymbols = true) {
   let chars = '';
@@ -1336,65 +878,22 @@ function showApp() {
   document.getElementById('appContent').style.display = 'block';
   renderAll();
   document.getElementById('topbarTitle').textContent = '全部密码';
-  updateSecurityHint();
-  // Show security prompt on first login if 2FA not enabled
-  if (!data.twofa?.enabled && !sessionStorage.getItem('pb_security_prompted')) {
-    sessionStorage.setItem('pb_security_prompted', '1');
-    setTimeout(() => openSecurityPrompt(), 500);
-  }
 }
 
 function doLogin() {
   const pw = document.getElementById('loginPw').value;
-  const storedPw = localStorage.getItem('pb_access_pw') || ACCESS_PASSWORD;
-  if (pw !== storedPw) {
+  const bwVerified = sessionStorage.getItem('pb_bw_verified') === 'true';
+  if (pw === ACCESS_PASSWORD) {
+    sessionStorage.setItem('pb_auth', '1');
+    showApp();
+  } else {
     const el = document.getElementById('loginError');
     el.textContent = '密码错误，请重试';
     document.getElementById('loginPw').value = '';
     document.getElementById('loginPw').focus();
     el.style.opacity = '1';
     setTimeout(() => { el.style.opacity = '0'; }, 2500);
-    return;
   }
-  // Check if 2FA is enabled
-  if (data.twofa?.enabled) {
-    document.getElementById('loginStep1').style.display = 'none';
-    document.getElementById('loginStep2').style.display = 'block';
-    document.getElementById('pwInputWrap').style.display = 'none';
-    document.getElementById('totpInputWrap').style.display = 'block';
-    document.getElementById('loginBtn1').style.display = 'none';
-    document.getElementById('loginBtn2').style.display = 'block';
-    document.getElementById('loginError').textContent = '';
-    document.getElementById('loginTotp').value = '';
-    document.getElementById('loginTotp').focus();
-  } else {
-    sessionStorage.setItem('pb_auth', '1');
-    showApp();
-  }
-}
-
-function doTotpLogin() {
-  const code = document.getElementById('loginTotp').value.trim();
-  if (code.length !== 6 || !/^\d+$/.test(code)) {
-    const el = document.getElementById('loginError');
-    el.textContent = '请输入 6 位验证码';
-    setTimeout(() => { el.style.opacity = '0'; }, 2000);
-    return;
-  }
-  const secret = data.twofa?.secret;
-  if (!secret) { sessionStorage.setItem('pb_auth', '1'); showApp(); return; }
-  generateTOTP(fromBase32(secret)).then(expected => {
-    if (code === expected) {
-      sessionStorage.setItem('pb_auth', '1');
-      showApp();
-    } else {
-      const el = document.getElementById('loginError');
-      el.textContent = '验证码错误，请重试';
-      document.getElementById('loginTotp').value = '';
-      el.style.opacity = '1';
-      setTimeout(() => { el.style.opacity = '0'; }, 2500);
-    }
-  });
 }
 
 function toggleLoginPw() {
@@ -1413,16 +912,10 @@ function toggleLoginPw() {
 (async function() {
   await initDB();
   await loadFromDB();
-  // Load custom access password from localStorage
-  const storedPw = localStorage.getItem('pb_access_pw');
-  if (storedPw) {
-    // Would need to update ACCESS_PASSWORD but it's const, so we handle it in doLogin
-  }
   const saved = sessionStorage.getItem('pb_auth');
   if (saved === '1') {
     showApp();
   } else {
-    updateTotpBadge();
     document.getElementById('loginPw').focus();
   }
 })();
