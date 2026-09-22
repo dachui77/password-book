@@ -1,48 +1,45 @@
 #!/usr/bin/env python3
-"""
-密码本项目日报发送脚本
-用法: python3 send_report.py [项目路径]
-"""
-
-import smtplib
-import sys
+"""密码本项目日报发送脚本"""
 import os
+import sys
+import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
-# 收件人列表
-RECIPIENTS = [
-    'dacuiw448@gmail.com',
-    'liushu@163.com'
-]
+RECIPIENTS = ['dacuiw448@gmail.com', 'liushu@163.com']
+
+def load_config():
+    """从 .env 文件加载配置"""
+    config = {}
+    env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    if os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    if '=' in line:
+                        key, val = line.split('=', 1)
+                        config[key.strip()] = val.strip()
+    # 也支持环境变量
+    config.setdefault('EMAIL_SENDER', os.getenv('EMAIL_SENDER', ''))
+    config.setdefault('EMAIL_PASSWORD', os.getenv('EMAIL_PASSWORD', ''))
+    return config
 
 def send_email(subject, body, project_path='.'):
-    """发送邮件报告"""
+    config = load_config()
+    sender = config.get('EMAIL_SENDER')
+    password = config.get('EMAIL_PASSWORD')
     
-    # 获取发件人信息（需要从环境变量或配置获取）
-    # Gmail SMTP
-    smtp_server = 'smtp.gmail.com'
-    smtp_port = 587
-    
-    # 检查是否有邮箱配置
-    sender_email = os.getenv('EMAIL_SENDER')
-    sender_password = os.getenv('EMAIL_PASSWORD')
-    
-    if not sender_email or not sender_password:
-        print("错误: 请设置环境变量 EMAIL_SENDER 和 EMAIL_PASSWORD")
-        print("示例:")
-        print("  export EMAIL_SENDER='your_email@gmail.com'")
-        print("  export EMAIL_PASSWORD='your_app_password'")
+    if not sender or not password:
+        print("错误: 请检查 .env 文件中的 EMAIL_SENDER 和 EMAIL_PASSWORD")
         return False
     
-    # 创建邮件
     msg = MIMEMultipart()
-    msg['From'] = sender_email
+    msg['From'] = sender
     msg['To'] = ', '.join(RECIPIENTS)
-    msg['Subject'] = f'[密码本日报] {subject} - {datetime.now().strftime("%Y-%m-%d")}'
+    msg['Subject'] = f'[Password Book日报] {subject} - {datetime.now().strftime("%Y-%m-%d")}'
     
-    # 邮件正文
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     report_body = f"""密码本项目工作日报
 
@@ -55,20 +52,11 @@ def send_email(subject, body, project_path='.'):
 """
     msg.attach(MIMEText(report_body, 'plain', 'utf-8'))
     
-    # 附加项目摘要文件（如果存在）
-    summary_file = os.path.join(project_path, 'WORK_LOG.md')
-    if os.path.exists(summary_file):
-        with open(summary_file, 'r', encoding='utf-8') as f:
-            attachment = MIMEText(f.read(), 'plain', 'utf-8')
-            attachment.add_header('Content-Disposition', 'attachment', filename='WORK_LOG.md')
-            msg.attach(attachment)
-    
-    # 发送邮件
     try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
+        server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, RECIPIENTS, msg.as_string())
+        server.login(sender, password)
+        server.sendmail(sender, RECIPIENTS, msg.as_string())
         server.quit()
         print(f"✓ 邮件已发送至: {', '.join(RECIPIENTS)}")
         return True
@@ -78,9 +66,8 @@ def send_email(subject, body, project_path='.'):
 
 if __name__ == '__main__':
     project_path = sys.argv[1] if len(sys.argv) > 1 else '.'
-    subject = sys.argv[2] if len(sys.argv) > 2 else '项目开发日志'
+    subject = sys.argv[2] if len(sys.argv) > 2 else '工作日报'
     
-    # 读取工作日志作为内容
     work_log = os.path.join(project_path, 'WORK_LOG.md')
     if os.path.exists(work_log):
         with open(work_log, 'r', encoding='utf-8') as f:
