@@ -1,12 +1,3 @@
 #!/bin/bash
-echo "🔐 Password Book"
-echo ""
-echo "方式一（推荐）：直接打开文件"
-echo "  Safari 中按 Cmd+O，选择："
-echo "  /Users/linus/Documents/Codex/password-book/index.html"
-echo ""
-echo "方式二：本地服务器"
-echo "  浏览器打开: http://localhost:18923"
-echo "  手机访问:   http://192.168.3.229:18923"
-echo ""
-echo "登录密码: admin123"
+cd "$(dirname "$0")"
+python3 -m http.server 3457

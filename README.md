@@ -1,71 +1,72 @@
 # 🔐 Password Book
 
-一个单文件密码管理器，支持离线使用，无需服务器。
-
-## 使用方法
-
-### 直接打开
-
-1. 打开 Safari 浏览器
-2. 按 `Cmd + O`（或 文件 → 打开...）
-3. 选择文件：`/Users/linus/Documents/Codex/password-book/index.html`
-4. 输入密码：**admin123**
-
-### 终端快速打开
-
-```bash
-open /Users/linus/Documents/Codex/password-book/index.html
-```
+一个支持 **双因素认证 (2FA)** 的本地密码管理器，基于 PWA 技术，可在任何浏览器中作为 APP 使用。
 
 ## 功能
 
-- 保存网站账号密码（谷歌、甲骨文等）
-- 密码强度检测与生成
-- 从浏览器/密码管理器导入（Chrome/Firefox/Safari CSV，Bitwarden/1Password JSON）
-- 导出为 CSV/JSON
-- **支持 TOTP 双因素认证（2FA）**
-- 数据存储在浏览器本地（IndexedDB）
+- **分类管理** — 预置「谷歌」「甲骨文」分类，支持自定义新增/编辑/删除
+- **卡片式布局** — 每个密码是一条卡片，含图标、标题、用户名、密码（默认掩码）、备注等
+- **搜索过滤** — 实时按用户名、密码、备注、URL 等字段过滤
+- **密码可见性** — 点击 👁 图标切换明文/密文显示
+- **一键复制** — 每行字段右侧有复制按钮
+- **导入/导出** — 支持 JSON 格式备份恢复，CSV/Excel 文件导入
+- **双因素认证 (2FA)** — 基于 TOTP 标准，需 Authenticator App 配合
+- **PWA 支持** — 安装为桌面/手机 APP，支持离线使用
 
-## 双因素认证 (2FA)
+## 访问方式
 
-### 启用步骤（在登录页面操作）
+### 直接打开（无需服务器）
+```bash
+open /Users/linus/Documents/Codex/password-book/index.html
+```
+访问密码：**admin123**
 
-1. 打开应用，在密码输入框下方找到 **"+ 启用 2FA"** 按钮
-2. 点击后会出现二维码和密钥
-3. 用 Authenticator App 扫描二维码（支持 Google/Microsoft Authenticator、1Password、Authy）
-4. 在 App 中查看生成的 6 位验证码
-5. 输入验证码，点击 **"确认已添加"** 完成设置
+### 本地服务器（推荐，支持 PWA 安装）
+```bash
+cd /Users/linus/Documents/Codex/password-book
+python3 -m http.server 3457
+# 然后访问 http://localhost:3457
+```
 
-### 登录时
+### GitHub Pages
+部署后可通过以下地址访问：
+```
+https://dachui77.github.io/password-book/
+```
 
-1. 输入访问密码（默认：`admin123`）
-2. 如已启用 2FA，需再输入 Authenticator App 中的 6 位验证码
+## 双因素认证 (2FA) 设置
 
-### 重要提示
+1. 登录后点击右上角 ⚙️ 设置按钮
+2. 点击「未启用」→ 扫描二维码或手动输入密钥
+3. 在 Authenticator App 中输入显示的 6 位验证码
+4. 确认绑定成功后，每次登录都需要输入验证码
 
-- 请妥善保管恢复密钥，丢失将无法找回账户
-- 可在登录页面点击 **"关闭 2FA"** 随时禁用
-- 2FA 密钥保存在浏览器本地，不上传任何服务器
+⚠️ **重要：请妥善保管恢复密钥！** 丢失将无法找回账户。
 
-## 导入密码
+## 跨设备同步
 
-### Chrome / Edge
-1. 访问 `chrome://settings/passwords`
-2. 点击右上角 ⋮ → **导出密码**
-3. 下载 CSV 后在本应用上传
+数据存储在浏览器本地（IndexedDB），跨设备同步方式：
+- 电脑上编辑 → 右上角「导出」→ 把 JSON 文件同步到手机/其他电脑 → 点击「导入」恢复
 
-### Firefox
-1. 访问 `about:logins`
-2. 右上角 ⋮ → **导出登录名**
-3. 下载 CSV 后上传
+## PWA 安装
 
-### Bitwarden
-1. Bitwarden → 设置 → 导出账户数据
-2. 选择 JSON 格式
-3. 在本应用上传
+### macOS
+1. 在 Chrome 中打开应用
+2. 地址栏右侧出现「安装」图标 → 点击
+3. 或在 Safari 中：菜单 → 文件 → 添加到程序坞
 
-## GitHub Pages 部署（多设备同步）
+### iOS
+1. 用 Safari 打开
+2. 点底部「分享」→「添加到主屏幕」
 
-1. 将本仓库推送到 GitHub
-2. 进入 Settings → Pages → Source: main branch
-3. 访问 `https://用户名.github.io/password-book`
+### Android
+1. 用 Chrome 打开
+2. 右上角 ⋮ →「安装应用」
+
+## 技术栈
+
+- 单文件 HTML（零依赖）
+- IndexedDB 本地存储
+- Web Crypto API（2FA TOTP）
+- Service Worker（PWA 离线缓存）
+- GitHub Actions 自动部署
