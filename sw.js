@@ -1,39 +1,20 @@
-const CACHE_NAME = 'password-book-v2';
-const SHELL_FILES = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_FILES))
-  );
+// Service Worker - 禁用缓存
+self.addEventListener('install', function(event) {
   self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    clients.claim()
   );
-  self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+self.addEventListener('fetch', function(event) {
   event.respondWith(
-    caches.match(event.request).then(cached =>
-      cached || fetch(event.request).then(network => {
-        if (network.ok) {
-          const clone = network.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return network;
-      }).catch(() => cached || new Response('离线', { status: 503 }))
-    )
+    fetch(event.request).then(function(response) {
+      return response;
+    }).catch(function() {
+      return caches.match(event.request);
+    })
   );
 });
