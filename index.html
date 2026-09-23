@@ -189,7 +189,7 @@
       默认密码：<code style="background:var(--border);color:var(--text);padding:1px 6px;border-radius:4px;">admin123</code><br>
       <button onclick="openPasswordGenerator()" style="margin-top:8px;padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;">生成强密码</button>
     </div>
-    <div id="securityHint" class="security-hint" style="display:none;">
+    <div id="resetLink" style="display:none;margin-top:8px;"><button onclick="resetPassword()" style="padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;">重置访问密码</button></div><div id="securityHint" class="security-hint" style="display:none;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       建议启用双因素认证增强安全性
     </div>
@@ -683,7 +683,15 @@ function doLogin() {
     document.getElementById('loginError').textContent = '密码错误';
     document.getElementById('loginPw').value = '';
     document.getElementById('loginPw').focus();
+    document.getElementById('resetLink').style.display = 'block';
   }
+}
+
+function resetPassword() {
+  if (!confirm('确定要重置访问密码为 admin123 吗？')) return;
+  localStorage.removeItem('pb_access_pw');
+  localStorage.removeItem('pb_twofa');
+  location.reload();
 }
 
 function toggleLoginPw() {
@@ -1851,37 +1859,9 @@ function updateSecurityHint() {
 }
 
 
-function saveSettings() {
-  const pw = document.getElementById('settingsPassword').value;
-  const pwConfirm = document.getElementById('settingsPasswordConfirm').value;
-  
-  if (pw && pw !== pwConfirm) {
-    toast('两次输入的密码不一致');
-    return;
-  }
-  
-  if (pw) {
-    accessPassword = pw;
-    localStorage.setItem('pb_access_pw', pw);
-    toast('密码已更新');
-  }
-  
-  closeSettingsModal();
-}
 
-function clearAllData() {
-  if (!confirm('确定要清除所有数据吗？此操作不可恢复！')) return;
-  if (!confirm('再次确认：清除所有密码和分类数据？')) return;
-  
-  clearAllDB();
-  localStorage.clear();
-  accessPassword = 'admin123';
-  localStorage.setItem('pb_access_pw', 'admin123');
-  
-  closeSettingsModal();
-  renderAll();
-  toast('所有数据已清除');
-}
+
+
 
 // ===== 模态框点击外部关闭 =====
 ['entryModal','catModal','importModal','settingsModal'].forEach(id => {
