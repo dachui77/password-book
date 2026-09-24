@@ -17,13 +17,13 @@
 
 ### 直接打开（无需服务器）
 ```bash
-open /Users/linus/Documents/Codex/password-book/index.html
+open <项目目录>/index.html
 ```
 访问密码：**admin123**
 
 ### 本地服务器（推荐，支持 PWA 安装）
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 python3 -m http.server 3457
 # 然后访问 http://localhost:3457
 ```

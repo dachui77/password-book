@@ -2,8 +2,8 @@
 
 ## 功能说明
 每天工作结束后，自动发送工作日志到邮箱：
-- dacuiw448@gmail.com
-- liushu@163.com
+- 你的邮箱@gmail.com
+- 收件人邮箱@example.com
 
 ## 配置步骤
 
@@ -17,7 +17,7 @@
 
 ### 2. 运行配置脚本
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 ./setup_email.sh
 ```
 
@@ -37,7 +37,7 @@ python3 send_report.py
 
 ### 手动发送日报
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 ./auto_report.sh
 ```
 
@@ -57,7 +57,7 @@ python3 send_report.py /path/to/project "今日工作摘要"
 ## 注意事项
 1. Gmail 需要开启"不安全应用访问"或使用应用专用密码
 2. 163 邮箱可能需要开启 SMTP 服务
-3. 应用密码比普通密码更安全，建议定期更换
+3. 应用密码比普通密码更安全，建议定期更换（切勿提交到仓库）
 
 ---
 *配置时间: 2026-09-22*

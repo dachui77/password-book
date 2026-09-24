@@ -1,7 +1,7 @@
 # 🔐 Password Book - GitHub 部署指南
 
 ## 当前状态
-- ✅ 代码已准备好：`/Users/linus/Documents/Codex/password-book/`
+- ✅ 代码已准备好：`<项目目录>/`
 - ❌ 网络无法连接 GitHub（需要手动操作）
 
 ---
@@ -12,7 +12,7 @@
 1. 下载安装 [GitHub Desktop](https://desktop.github.com/)
 2. 登录你的 GitHub 账号 (dachui77)
 3. 点击 `File` → `Add local repository`
-4. 选择文件夹：`/Users/linus/Documents/Codex/password-book/`
+4. 选择文件夹：`<项目目录>/`
 5. 点击 `Continue`
 6. 点击 `Publish repository`
    - Repository name: `password-book`
@@ -21,7 +21,7 @@
 
 ### 方法二：使用终端命令
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 
 # 配置 Git 用户信息（如果还没配置）
 git config --global user.name "dachui77"
@@ -56,7 +56,7 @@ git push https://dachui77:YOUR_TOKEN@github.com/dachui77/password-book.git
 
 ### 手动启用（创建 gh-pages 分支）
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 
 # 创建 gh-pages 分支并推送
 git checkout -b gh-pages

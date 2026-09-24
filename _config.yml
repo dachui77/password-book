@@ -1,0 +1,35 @@
+# GitHub Pages（Jekyll）发布排除清单
+#
+# 目的：这个仓库在 GitHub Pages 上是「公开网站」，
+#       只应该发布应用本体，绝不能把服务器脚本、开发文档、
+#       配置文件一起发布出去。
+#
+# 背景：之前 send_report.py / WORK_LOG.md / index.html.bak
+#       都能在公网直接下载，其中包含真实邮箱地址等信息。
+
+exclude:
+  # 服务器与脚本（只在本机用，不需要发布）
+  - server.js
+  - send_report.py
+  - auto_report.sh
+  - setup_email.sh
+  - launch.sh
+  - open.sh
+  - 启动服务器.sh
+
+  # 开发文档（在 GitHub 上查看即可，不需要发布成网页）
+  - README.md
+  - README_使用说明.md
+  - WORK_LOG.md
+  - PROJECT_SUMMARY.md
+  - EMAIL_SETUP.md
+  - EMAIL_SETUP_GUIDE.md
+  - GITHUB_SETUP.md
+  - PUSH_INSTRUCTIONS.md
+
+  # 配置文件
+  - .env
+  - .env.example
+  - .gitignore
+  - _config.yml
+  - .github

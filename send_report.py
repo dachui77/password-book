@@ -7,14 +7,15 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
-RECIPIENTS = ['dacuiw448@gmail.com', 'liushu@163.com']
+# 收件人从配置读取，避免把真实邮箱写进代码提交到公开仓库。
+# 在 .env 里加一行：  EMAIL_RECIPIENTS=a@x.com,b@y.com
 
 def load_config():
-    """从 .env 文件加载配置"""
+    """从 .env 文件加载配置（.env 已被 .gitignore 忽略，不会提交）"""
     config = {}
     env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
     if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
+        with open(env_file, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith('#'):
@@ -24,20 +25,25 @@ def load_config():
     # 也支持环境变量
     config.setdefault('EMAIL_SENDER', os.getenv('EMAIL_SENDER', ''))
     config.setdefault('EMAIL_PASSWORD', os.getenv('EMAIL_PASSWORD', ''))
+    config.setdefault('EMAIL_RECIPIENTS', os.getenv('EMAIL_RECIPIENTS', ''))
     return config
 
 def send_email(subject, body, project_path='.'):
     config = load_config()
     sender = config.get('EMAIL_SENDER')
     password = config.get('EMAIL_PASSWORD')
-    
+    recipients = [r.strip() for r in (config.get('EMAIL_RECIPIENTS') or '').split(',') if r.strip()]
+
     if not sender or not password:
         print("错误: 请检查 .env 文件中的 EMAIL_SENDER 和 EMAIL_PASSWORD")
         return False
-    
+    if not recipients:
+        print("错误: 请在 .env 中配置 EMAIL_RECIPIENTS（多个用英文逗号分隔）")
+        return False
+
     msg = MIMEMultipart()
     msg['From'] = sender
-    msg['To'] = ', '.join(RECIPIENTS)
+    msg['To'] = ', '.join(recipients)
     msg['Subject'] = f'[Password Book日报] {subject} - {datetime.now().strftime("%Y-%m-%d")}'
     
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -56,9 +62,9 @@ def send_email(subject, body, project_path='.'):
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(sender, password)
-        server.sendmail(sender, RECIPIENTS, msg.as_string())
+        server.sendmail(sender, recipients, msg.as_string())
         server.quit()
-        print(f"✓ 邮件已发送至: {', '.join(RECIPIENTS)}")
+        print(f"✓ 邮件已发送至: {', '.join(recipients)}")
         return True
     except Exception as e:
         print(f"✗ 邮件发送失败: {e}")

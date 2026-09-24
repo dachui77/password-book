@@ -15,7 +15,7 @@
 kill 98728
 
 # 进入项目目录
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 
 # 启动新服务器
 python3 -m http.server 8000

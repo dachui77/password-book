@@ -232,7 +232,7 @@ dd00c7c feat: PWA + 完整2FA实现
 ---
 
 ## 项目位置
-- **本地路径**: `/Users/linus/Documents/Codex/password-book/`
+- **本地路径**: `<项目目录>/`
 - **GitHub**: https://github.com/dachui77/password-book.git
 - **在线访问**: https://dachui77.github.io/password-book/
 
@@ -276,8 +276,8 @@ dd00c7c feat: PWA + 完整2FA实现
 ## 邮件配置状态 (2026-09-22 21:15)
 
 **配置状态**: ✅ 已完成
-- Gmail 邮箱: dacuiw448@gmail.com
-- 应用密码: 已生成并配置
+- Gmail 邮箱: 你的邮箱@gmail.com
+- 应用密码: 状态不在文档中记录（安全考虑）
 - 配置文件: .env
 
 **当前问题**: ❌ 网络不通

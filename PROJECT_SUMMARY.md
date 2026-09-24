@@ -1,7 +1,7 @@
 # Password Book 项目摘要
 
 ## 项目信息
-- **路径**: `/Users/linus/Documents/Codex/password-book/`
+- **路径**: `<项目目录>/`
 - **GitHub**: https://github.com/dachui77/password-book.git
 - **当前版本**: 1909 行 HTML 单文件应用
 - **最后提交**: `0cfdcd9 fix: 更新密码生成器按钮文字`
@@ -90,14 +90,14 @@
 
 ### 本地测试
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 python3 -m http.server 8000
 # 浏览器访问 http://localhost:8000
 ```
 
 ### 推送到 GitHub
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 git push origin main
 ```
 

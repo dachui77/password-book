@@ -11,19 +11,19 @@
 gh auth login
 
 # 推送代码
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 git push origin main
 ```
 
 ### 方法2: 使用 Personal Access Token
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 git push https://你的Token@github.com/dachui77/password-book.git main
 ```
 
 ### 方法3: 使用 SSH
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 git push git@github.com:dachui77/password-book.git main
 ```
 

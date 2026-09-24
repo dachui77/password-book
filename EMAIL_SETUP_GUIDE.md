@@ -1,15 +1,15 @@
 # Password Book 邮件日报配置指南
 
 ## 收件人
-- dacuiw448@gmail.com
-- liushu@163.com
+- 你的邮箱@gmail.com
+- 收件人邮箱@example.com
 
 ## 配置步骤
 
 ### 第一步：获取 Gmail 应用专用密码
 
 1. 打开浏览器访问：**https://myaccount.google.com/apppasswords**
-2. 登录你的 Gmail 账号（dacuiw448@gmail.com）
+2. 登录你的 Gmail 账号（你的邮箱@gmail.com）
 3. 在"应用"下拉菜单选择 **"其他（自定义名称）"**
 4. 输入名称：`PasswordBook`
 5. 点击 **"生成"**
@@ -17,7 +17,7 @@
 
 ### 第二步：修改配置文件
 
-打开文件：`/Users/linus/Documents/Codex/password-book/.env`
+打开文件：`<项目目录>/.env`
 
 将这一行：
 ```
@@ -33,13 +33,13 @@ EMAIL_PASSWORD=abcdefghijklmnop
 
 在项目目录下运行：
 ```bash
-cd /Users/linus/Documents/Codex/password-book
+cd <项目目录>/
 python3 send_report.py
 ```
 
 应该看到输出：
 ```
-✓ 邮件已发送至: dacuiw448@gmail.com, liushu@163.com
+✓ 邮件已发送至: 你的邮箱@gmail.com, 收件人邮箱@example.com
 ```
 
 ### 第四步：每日自动发送日报
